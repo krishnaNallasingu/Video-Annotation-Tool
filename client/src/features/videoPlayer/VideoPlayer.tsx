@@ -1,183 +1,300 @@
-import React, { useRef, useState, useEffect } from 'react';
-import AnnotationOverlay from '../annotations/AnnotationOverlay';
+import React, { useRef, useEffect, useCallback } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { setPlaying, setCurrentTime, setDuration, setPlaybackRate } from './videoPlayerSlice';
+import { loadAnnotations, undo, redo } from '../annotations/annotationsSlice';
+import type { RootState } from '../../store/store';
+import AnnotationsCanvas from '../annotations/AnnotationsCanvas';
+import AnnotationToolbar from '../annotations/AnnotationToolbar';
+import AnnotationProperties from '../annotations/AnnotationProperties';
+import AnnotationList from '../annotations/AnnotationList';
+import {
+  FiPlay, FiPause, FiRotateCcw, FiRotateCw, FiMaximize, FiChevronLeft, FiChevronRight
+} from 'react-icons/fi';
 
-type ToolType = 'select' | 'circle' | 'rectangle' | 'line' | 'text';
+const PLAYBACK_RATES = [0.5, 1, 1.25, 1.5, 2];
 
 const VideoPlayer: React.FC = () => {
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-  const [tool, setTool] = useState<ToolType>('select');
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [playbackRate, setPlaybackRate] = useState(1);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const dispatch = useDispatch();
+  const { playing, currentTime, duration, playbackRate } = useSelector((state: RootState) => state.videoPlayer);
+  const { annotations } = useSelector((state: RootState) => state.annotations);
 
-  const formatTime = (time: number) => {
-    const minutes = Math.floor(time / 60);
-    const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
-  };
+  useEffect(() => { dispatch(loadAnnotations()); }, [dispatch]);
+  useEffect(() => {
+    if (!videoRef.current) return;
+    if (playing) videoRef.current.play();
+    else videoRef.current.pause();
+  }, [playing]);
+  useEffect(() => {
+    if (videoRef.current) videoRef.current.playbackRate = playbackRate;
+  }, [playbackRate]);
 
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    const handleLoadedMetadata = () => setDuration(video.duration);
-    const handleTimeUpdate = () => setCurrentTime(video.currentTime);
-
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (document.activeElement?.tagName === 'INPUT') return;
-
-      switch (e.key) {
-        case ' ':
-          e.preventDefault();
-          togglePlayPause();
-          break;
-        case 'ArrowLeft':
-          video.currentTime = Math.max(0, video.currentTime - 5);
-          break;
-        case 'ArrowRight':
-          video.currentTime = Math.min(duration, video.currentTime + 5);
-          break;
+      if (e.target && (e.target as HTMLElement).tagName === 'INPUT') return;
+      if (e.code === 'Space') {
+        e.preventDefault();
+        dispatch(setPlaying(!playing));
+      } else if (e.code === 'ArrowRight') {
+        seekBy(5);
+      } else if (e.code === 'ArrowLeft') {
+        seekBy(-5);
+      } else if (e.code === 'Period') {
+        frameByFrame(1);
+      } else if (e.code === 'Comma') {
+        frameByFrame(-1);
       }
     };
-
-    video.addEventListener('loadedmetadata', handleLoadedMetadata);
-    video.addEventListener('timeupdate', handleTimeUpdate);
     window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+    // eslint-disable-next-line
+  }, [playing, currentTime, duration]);
 
-    return () => {
-      video.removeEventListener('loadedmetadata', handleLoadedMetadata);
-      video.removeEventListener('timeupdate', handleTimeUpdate);
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [duration]);
+  const seekBy = useCallback((seconds: number) => {
+    if (!videoRef.current) return;
+    let newTime = Math.min(Math.max(videoRef.current.currentTime + seconds, 0), duration);
+    videoRef.current.currentTime = newTime;
+    dispatch(setCurrentTime(newTime));
+  }, [dispatch, duration]);
 
-  const togglePlayPause = () => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    if (video.paused) {
-      video.play();
-      setIsPlaying(true);
-    } else {
-      video.pause();
-      setIsPlaying(false);
-    }
-  };
-
-  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    const time = parseFloat(e.target.value);
-    video.currentTime = time;
-    setCurrentTime(time);
-  };
+  const frameByFrame = useCallback((frames: number) => {
+    if (!videoRef.current) return;
+    const fps = 30;
+    let newTime = Math.min(Math.max(videoRef.current.currentTime + frames / fps, 0), duration);
+    videoRef.current.currentTime = newTime;
+    dispatch(setCurrentTime(newTime));
+  }, [dispatch, duration]);
 
   const handleFullscreen = () => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    if (video.requestFullscreen) {
-      video.requestFullscreen();
+    if (videoRef.current && videoRef.current.requestFullscreen) {
+      videoRef.current.requestFullscreen();
     }
   };
 
-  const handleFrameBack = () => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    const newTime = Math.max(0, video.currentTime - 1 / 30); // 30 FPS
-    video.currentTime = newTime;
-    setCurrentTime(newTime);
+  const handlePlayPause = () => dispatch(setPlaying(!playing));
+  const handleTimeUpdate = () => {
+    if (videoRef.current) dispatch(setCurrentTime(videoRef.current.currentTime));
   };
-
-  const handleFrameForward = () => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    const newTime = Math.min(duration, video.currentTime + 1 / 30);
-    video.currentTime = newTime;
-    setCurrentTime(newTime);
+  const handleLoadedMetadata = () => {
+    if (videoRef.current) dispatch(setDuration(videoRef.current.duration));
   };
-
-  const changePlaybackSpeed = (rate: number) => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    video.playbackRate = rate;
-    setPlaybackRate(rate);
+  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (videoRef.current) {
+      videoRef.current.currentTime = Number(e.target.value);
+      dispatch(setCurrentTime(Number(e.target.value)));
+    }
+  };
+  const speedButtonStyle = (rate: number) => ({
+    background: playbackRate === rate ? '#0d6efd' : '#292d36',
+    color: playbackRate === rate ? '#fff' : '#fff',
+    border: playbackRate === rate ? '1.5px solid #0d6efd' : '1.5px solid transparent',
+    borderRadius: 8,
+    padding: '6px 12px',
+    margin: '0 2px',
+    cursor: 'pointer',
+    fontWeight: playbackRate === rate ? 700 : 400,
+    transition: 'background 0.18s, border-color 0.18s'
+  });
+  const formatTime = (t: number) => {
+    const m = Math.floor(t / 60);
+    const s = Math.floor(t % 60);
+    return `${m}:${s.toString().padStart(2, '0')}`;
   };
 
   return (
-    <div className="video-player">
-
-      <div style={{ position: 'relative' }}>
-        <video
-          ref={videoRef}
-          src="/sample.mp4"
-          width="100%"
-          style={{ borderRadius: '12px' }}
-          controls={false}
-        />
-        {/* <AnnotationOverlay
-          tool={tool}
-          videoTime={currentTime}
-          isPaused={!isPlaying}
-        /> */}
+    <div>
+      {/* Headline */}
+      <div style={{
+        textAlign: 'center',
+        fontWeight: 700,
+        fontSize: '2rem',
+        letterSpacing: '0.03em',
+        margin: '2rem 0 1.5rem 0',
+        color: '#0d6efd',
+        textShadow: '0 2px 12px #0008'
+      }}>
+        Video-Annotation-Tool
       </div>
-
-      {/* Playback Controls */}
-      <div className="controls">
-        <button onClick={togglePlayPause}>
-          {isPlaying ? 'Pause' : 'Play'}
-        </button>
-
-        <button onClick={handleFrameBack}>⏮️ Frame</button>
-        <button onClick={handleFrameForward}>Frame ⏭️</button>
-
-        <input
-          type="range"
-          min="0"
-          max={duration}
-          step="0.1"
-          value={currentTime}
-          onChange={handleSeek}
-        />
-
-        <span style={{ minWidth: '600px', textAlign: 'center' }}>
-          {formatTime(currentTime)} / {formatTime(duration)}
-        </span>
-
-        <button onClick={handleFullscreen}>⛶ Fullscreen</button>
-      </div>
-
-      {/* Speed Control */}
-      <div className="speed-buttons controls">
-        <span>Speed:</span>
-        {[0.5, 1, 1.25, 1.5, 2].map((speed) => (
-          <button
-            key={speed}
-            onClick={() => changePlaybackSpeed(speed)}
-            className={playbackRate === speed ? 'active' : ''}
+      {/* Main layout: player + description */}
+      <div style={{
+        display: 'flex',
+        gap: 32,
+        alignItems: 'flex-start',
+        justifyContent: 'center',
+        maxWidth: 1200,
+        margin: '0 auto',
+        marginLeft: 5 // Move everything 5px to the right
+      }}>
+        {/* Video player and controls */}
+        <div className="video-player" style={{
+          flex: 2,
+          border: '2px solid #232323',
+          borderRadius: 16,
+          background: '#23272f',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.45)',
+          overflow: 'hidden',
+          position: 'relative',
+          minWidth: 0
+        }}>
+          <div style={{ position: 'relative' }}>
+            <video
+              ref={videoRef}
+              src="/sample.mp4"
+              onTimeUpdate={handleTimeUpdate}
+              onLoadedMetadata={handleLoadedMetadata}
+              style={{ width: '100%', display: 'block', background: '#000', borderRadius: '16px 16px 0 0' }}
+              tabIndex={0}
+            />
+            <AnnotationsCanvas currentTime={currentTime} playing={playing} />
+          </div>
+          {/* Seeker timeline */}
+          <div style={{ background: '#181818', padding: '0 20px', position: 'relative' }}>
+            <input
+              type="range"
+              min={0}
+              max={duration}
+              step={0.01}
+              value={currentTime}
+              onChange={handleSeek}
+              style={{ width: '100%', accentColor: '#0d6efd', height: 6, margin: '10px 0' }}
+            />
+            {/* Progress bar markers */}
+            <div className="progress-markers" style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 0 }}>
+              {duration > 0 &&
+                annotations.map(ann => (
+                  <div
+                    key={ann.id}
+                    style={{
+                      position: 'absolute',
+                      left: `${(ann.timestamp / duration) * 100}%`,
+                      top: -8,
+                      width: 4,
+                      height: 8,
+                      background: '#0d6efd',
+                      opacity: 0.7,
+                      borderRadius: 2,
+                    }}
+                  />
+                ))}
+            </div>
+          </div>
+          {/* Controls row */}
+          <div className="controls" style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 20px', border: 0 }}>
+            <button onClick={handlePlayPause} aria-label="Play/Pause">
+              {playing ? <FiPause size={22} /> : <FiPlay size={22} />}
+            </button>
+            <button onClick={() => frameByFrame(-1)} title="Previous frame" aria-label="Previous frame">
+              <FiChevronLeft size={20} />
+            </button>
+            <button onClick={() => frameByFrame(1)} title="Next frame" aria-label="Next frame">
+              <FiChevronRight size={20} />
+            </button>
+            <span style={{ minWidth: 70, textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>
+              {formatTime(currentTime)} / {formatTime(duration)}
+            </span>
+            {/* Playback speed buttons */}
+            <div style={{ display: 'flex', alignItems: 'center', marginLeft: 12 }}>
+              {PLAYBACK_RATES.map(rate => (
+                <button
+                  key={rate}
+                  style={speedButtonStyle(rate)}
+                  onClick={() => dispatch(setPlaybackRate(rate))}
+                  aria-label={`Set playback speed to ${rate}x`}
+                >
+                  {rate}x
+                </button>
+              ))}
+            </div>
+            <button onClick={handleFullscreen} aria-label="Fullscreen">
+              <FiMaximize size={20} />
+            </button>
+          </div>
+          {/* Annotation toolbar and undo/redo row */}
+          <div
+            className="annotation-toolbar-bar"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 16, // More gap between annotation tools and undo/redo
+              background: '#23272f',
+              borderRadius: '0 0 12px 12px',
+              borderTop: '1px solid #232323',
+              padding: '8px 20px',
+              marginBottom: 0,
+              width: '100%',
+              boxSizing: 'border-box',
+              justifyContent: 'flex-start'
+            }}
           >
-            {speed}x
-          </button>
-        ))}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <AnnotationToolbar />
+              <button onClick={() => dispatch(undo())} aria-label="Undo">
+                <FiRotateCcw size={18} />
+              </button>
+              <button onClick={() => dispatch(redo())} aria-label="Redo">
+                <FiRotateCw size={18} />
+              </button>
+            </div>
+          </div>
+        </div>
+        {/* Description panel */}
+        <div style={{
+          flex: 1,
+          background: '#23272f',
+          border: '2px solid #232323',
+          borderRadius: 16,
+          padding: '24px 20px',
+          color: '#fff',
+          minWidth: 260,
+          maxWidth: 340,
+          boxShadow: '0 2px 12px rgba(0,0,0,0.12)',
+          transition: 'box-shadow 0.2s',
+          fontSize: '1.08rem',
+          lineHeight: 1.6
+        }}>
+          <div style={{ fontWeight: 600, color: '#0d6efd', marginBottom: 8, fontSize: '1.15em' }}>
+            Video Description
+          </div>
+          <div>
+            This is a sample video for annotation. Use the toolbar below to draw, select, and edit annotations.
+            You can pause the video to add or move annotations, and use the timeline to see where annotations appear.
+          </div>
+        </div>
       </div>
-
-      {/* Tool Selection */}
-      <div className="controls">
-        <span>Tool:</span>
-        {['select', 'rectangle', 'circle', 'line', 'text'].map((t) => (
-          <button
-            key={t}
-            onClick={() => setTool(t as ToolType)}
-            className={tool === t ? 'active' : ''}
-          >
-            {t}
-          </button>
-        ))}
+      {/* Bottom annotation panels */}
+      <div style={{
+        display: 'flex',
+        gap: 24,
+        margin: '32px auto 0 auto',
+        maxWidth: 1200,
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        marginLeft: 5 // Move annotation panels 5px to the right
+      }}>
+        <div style={{
+          flex: 1,
+          minWidth: 220,
+          border: '2px solid #232323',
+          borderRadius: 12,
+          background: '#23272f',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+          transition: 'box-shadow 0.2s',
+          padding: 2
+        }}>
+          <AnnotationList />
+        </div>
+        <div style={{
+          flex: 2,
+          minWidth: 220,
+          border: '2px solid #232323',
+          borderRadius: 12,
+          background: '#23272f',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+          transition: 'box-shadow 0.2s',
+          padding: 2
+        }}>
+          <AnnotationProperties />
+        </div>
       </div>
     </div>
   );
