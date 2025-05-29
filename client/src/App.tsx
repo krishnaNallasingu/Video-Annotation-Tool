@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import VideoPlayer from './components/VideoPlayer';
+import VideoPlayer from './features/videoPlayer/VideoPlayer';
 
 function App() {
   return (
@@ -12,3 +12,4 @@ function App() {
 }
 
 export default App;
+

@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import AnnotationOverlay from './annotations/AnnotationOverlay';
+import AnnotationOverlay from '../annotations/AnnotationOverlay';
 
 type ToolType = 'select' | 'circle' | 'rectangle' | 'line' | 'text';
 
@@ -111,7 +111,7 @@ const VideoPlayer: React.FC = () => {
 
   return (
     <div className="video-player">
-      {/* Video + Overlay */}
+
       <div style={{ position: 'relative' }}>
         <video
           ref={videoRef}
@@ -120,11 +120,11 @@ const VideoPlayer: React.FC = () => {
           style={{ borderRadius: '12px' }}
           controls={false}
         />
-        <AnnotationOverlay
+        {/* <AnnotationOverlay
           tool={tool}
           videoTime={currentTime}
           isPaused={!isPlaying}
-        />
+        /> */}
       </div>
 
       {/* Playback Controls */}
@@ -145,7 +145,7 @@ const VideoPlayer: React.FC = () => {
           onChange={handleSeek}
         />
 
-        <span style={{ minWidth: '100px', textAlign: 'center' }}>
+        <span style={{ minWidth: '600px', textAlign: 'center' }}>
           {formatTime(currentTime)} / {formatTime(duration)}
         </span>
 
