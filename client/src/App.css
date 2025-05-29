@@ -1,0 +1,96 @@
+body {
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  background-color: #b9bdc0;
+  margin: 0;
+  padding: 0;
+  color: #1c1c1e;
+}
+
+.App {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem;
+}
+
+.video-player {
+  width: 100%;
+  max-width: 900px;
+  background-color: #000;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+video {
+  width: 100%;
+  display: block;
+  border-bottom: 1px solid #333;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #1e1e1e;
+  color: white;
+  gap: 8px;
+}
+
+.controls button {
+  background: #292929;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.controls button:hover {
+  background: #3a3a3a;
+}
+
+.controls button.active {
+  background-color: #0d6efd;
+}
+
+input[type="range"] {
+  flex-grow: 1;
+  height: 6px;
+  cursor: pointer;
+  accent-color: #0d6efd;
+}
+
+.time-display {
+  font-size: 12px;
+  color: #ccc;
+  min-width: 90px;
+  text-align: center;
+}
+
+.speed-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+@media (max-width: 600px) {
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .time-display {
+    text-align: left;
+    margin-top: 4px;
+  }
+
+  .speed-buttons {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+}
