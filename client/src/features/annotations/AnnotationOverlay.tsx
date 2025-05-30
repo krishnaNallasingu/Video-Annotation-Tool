@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import type { RootState } from '../../store/store';
+import { useAppDispatch } from '../../store/hooks'; // adjust the path as needed
 import {
   addAnnotationAsync,
   setSelectedAnnotation,
@@ -17,7 +18,7 @@ interface Props {
 
 const AnnotationOverlay: React.FC<Props> = ({ tool, videoTime, isPaused }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const annotations = useSelector((state: RootState) => state.annotations.annotations);
   const selectedId = useSelector((state: RootState) => state.annotations.selectedAnnotationId);

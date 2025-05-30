@@ -1,10 +1,11 @@
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
+import { useAppDispatch } from '../../store/hooks'; // adjust the path as needed
 import { updateAnnotationAsync, deleteAnnotationAsync } from './annotationsSlice';
 import type { RootState } from '../../store/store';
 
 const AnnotationProperties: React.FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const { annotations, selectedAnnotationId } = useSelector((state: RootState) => state.annotations);
   const annotation = annotations.find(a => a.id === selectedAnnotationId);
 

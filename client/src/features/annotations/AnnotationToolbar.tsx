@@ -1,9 +1,10 @@
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { setSelectedTool} from './annotationsSlice';
+import { useSelector } from 'react-redux';
+import { setSelectedTool } from './annotationsSlice';
 import type { RootState } from '../../store/store';
 import { FiMousePointer, FiCircle, FiSquare, FiType, FiMinus } from 'react-icons/fi';
 import type { ToolType } from './annotationsSlice';
+import { useAppDispatch } from '../../store/hooks'; // adjust the path as needed
 
 const tools: { type: ToolType; label: string; icon: React.ReactNode }[] = [
   { type: 'select', label: 'Select', icon: <FiMousePointer /> },
@@ -14,7 +15,7 @@ const tools: { type: ToolType; label: string; icon: React.ReactNode }[] = [
 ];
 
 const AnnotationToolbar: React.FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const selectedTool = useSelector((state: RootState) => state.annotations.selectedTool);
 
   return (
