@@ -1,6 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 export interface Annotation {
   id: string;
   type: 'circle' | 'rectangle' | 'line' | 'text';
@@ -40,7 +42,7 @@ const initialState: AnnotationsState = {
 export const fetchAnnotations = createAsyncThunk(
   'annotations/fetchAnnotations',
   async () => {
-    const res = await fetch('http://localhost:5001/api/annotations');
+    const res = await fetch(API_URL);
     return await res.json();
   }
 );
@@ -48,7 +50,7 @@ export const fetchAnnotations = createAsyncThunk(
 export const addAnnotationAsync = createAsyncThunk(
   'annotations/addAnnotation',
   async (annotation: Omit<Annotation, 'id'>) => {
-    const res = await fetch('http://localhost:5001/api/annotations', {
+    const res = await fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(annotation),
@@ -60,7 +62,7 @@ export const addAnnotationAsync = createAsyncThunk(
 export const updateAnnotationAsync = createAsyncThunk(
   'annotations/updateAnnotation',
   async (annotation: Annotation) => {
-    const res = await fetch(`http://localhost:5001/api/annotations/${annotation.id}`, {
+    const res = await fetch(`${API_URL}/${annotation.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(annotation),
@@ -72,7 +74,7 @@ export const updateAnnotationAsync = createAsyncThunk(
 export const deleteAnnotationAsync = createAsyncThunk(
   'annotations/deleteAnnotation',
   async (id: string) => {
-    await fetch(`http://localhost:5001/api/annotations/${id}`, {
+    await fetch(`${API_URL}/${id}`, {
       method: 'DELETE',
     });
     return id;
