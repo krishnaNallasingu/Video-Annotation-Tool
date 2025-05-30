@@ -2,7 +2,7 @@
 a web-based video annotation tool that allows users to watch videos and add timestamped annotations.
 
 
-# End Points:
+# API - End Points:
 - GET all annotations:
 '''
 curl http://localhost:5001/api/annotations

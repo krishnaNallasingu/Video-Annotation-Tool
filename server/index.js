@@ -4,18 +4,18 @@ const bodyParser = require('body-parser');
 const Annotation = require('./models/Annotation');
 
 const app = express();
-const PORT = 5001;
-
+// const PORT = 5001;
 // MongoDB connection
 const mongoose = require('mongoose');
-
-mongoose.connect(
-  "mongodb+srv://jagankrishna369:Cvg9IbZ2qwZbW8Bb@videoannotationdb.szwwqx2.mongodb.net/video-annotations?retryWrites=true&w=majority",
-  {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  }
-);
+const PORT = process.env.PORT || 5001;
+mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+// mongoose.connect(
+//   "mongodb+srv://jagankrishna369:Cvg9IbZ2qwZbW8Bb@videoannotationdb.szwwqx2.mongodb.net/video-annotations?retryWrites=true&w=majority",
+//   {
+//     useNewUrlParser: true,
+//     useUnifiedTopology: true,
+//   }
+// );
 mongoose.connection.on('connected', () => {
   console.log('MongoDB connected');
 });
