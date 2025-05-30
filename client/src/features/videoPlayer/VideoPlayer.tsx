@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useCallback } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
+import { useAppDispatch } from '../../store/hooks'; // adjust path as needed
 import { setPlaying, setCurrentTime, setDuration, setPlaybackRate } from './videoPlayerSlice';
 import { fetchAnnotations, undo, redo } from '../annotations/annotationsSlice';
 import type { RootState } from '../../store/store';
@@ -15,7 +16,7 @@ const PLAYBACK_RATES = [0.5, 1, 1.25, 1.5, 2];
 
 const VideoPlayer: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const { playing, currentTime, duration, playbackRate } = useSelector((state: RootState) => state.videoPlayer);
   const { annotations } = useSelector((state: RootState) => state.annotations);
 

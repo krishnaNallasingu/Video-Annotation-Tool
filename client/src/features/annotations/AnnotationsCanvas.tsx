@@ -1,11 +1,11 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
+import { useAppDispatch } from '../../store/hooks'; // adjust path as needed
 import {
   addAnnotationAsync,
   setSelectedAnnotation,
 } from './annotationsSlice';
 import type {
-  ToolType,
   Annotation,
 } from './annotationsSlice';
 import type { RootState } from '../../store/store';
@@ -19,7 +19,7 @@ const DEFAULT_COLOR = '#0d6efd';
 
 const AnnotationsCanvas: React.FC<Props> = ({ currentTime, playing }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const { annotations, selectedTool, selectedAnnotationId } = useSelector(
     (state: RootState) => state.annotations
   );
