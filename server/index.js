@@ -32,7 +32,11 @@ function mapAnnotation(doc) {
 app.use(cors());
 app.use(bodyParser.json());
 
-// Get all annotations (optionally filter by videoId)
+app.get('/', (req, res) => {
+  res.send('<h2>Welcome to the Video Annotation Tool Backend API</h2><p>Use <code>/api/annotations</code> for annotation endpoints.<i> Thank You..</i></p>');
+});
+
+
 app.get('/api/annotations', async (req, res) => {
   const { videoId } = req.query;
   const filter = videoId ? { videoId } : {};
