@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setSelectedAnnotation } from './annotationsSlice';
+import { setSelectedAnnotation, deleteAnnotationAsync } from './annotationsSlice';
 import type { RootState } from '../../store/store';
 
 const AnnotationList: React.FC = () => {
@@ -11,14 +11,22 @@ const AnnotationList: React.FC = () => {
     <div className="annotation-list">
       <h4>Annotations</h4>
       <ul>
-        {annotations.map(ann => (
+        {annotations.map((ann, idx) => (
           <li
-            key={ann.id}
+            key={ann.id || idx}
             className={selectedAnnotationId === ann.id ? 'active' : ''}
             onClick={() => dispatch(setSelectedAnnotation(ann.id))}
           >
             <span>{ann.type}</span>
             <span>{Math.round(ann.timestamp * 10) / 10}s</span>
+            <button
+              onClick={e => {
+                e.stopPropagation();
+                dispatch(deleteAnnotationAsync(ann.id));
+              }}
+            >
+              Delete
+            </button>
           </li>
         ))}
       </ul>

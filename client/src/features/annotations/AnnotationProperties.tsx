@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateAnnotation, deleteAnnotation } from './annotationsSlice';
+import { updateAnnotationAsync, deleteAnnotationAsync } from './annotationsSlice';
 import type { RootState } from '../../store/store';
 
 const AnnotationProperties: React.FC = () => {
@@ -11,7 +11,7 @@ const AnnotationProperties: React.FC = () => {
   if (!annotation) return <div className="properties-panel">No annotation selected</div>;
 
   const handleChange = (field: string, value: any) => {
-    dispatch(updateAnnotation({ ...annotation, [field]: value }));
+    dispatch(updateAnnotationAsync({ ...annotation, [field]: value }));
   };
 
   return (
@@ -54,7 +54,7 @@ const AnnotationProperties: React.FC = () => {
           />
         </div>
       )}
-      <button onClick={() => dispatch(deleteAnnotation(annotation.id))}>Delete</button>
+      <button onClick={() => dispatch(deleteAnnotationAsync(annotation.id))}>Delete</button>
     </div>
   );
 };

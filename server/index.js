@@ -1,39 +1,78 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const Annotation = require('./models/Annotation');
 
 const app = express();
-const PORT = 5000;
+const PORT = 5001;
+
+// MongoDB connection
+const mongoose = require('mongoose');
+
+mongoose.connect(
+  "mongodb+srv://jagankrishna369:Cvg9IbZ2qwZbW8Bb@videoannotationdb.szwwqx2.mongodb.net/video-annotations?retryWrites=true&w=majority",
+  {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  }
+);
+mongoose.connection.on('connected', () => {
+  console.log('MongoDB connected');
+});
+
+// Helper to map _id to id
+function mapAnnotation(doc) {
+  const obj = doc.toObject ? doc.toObject() : doc;
+  obj.id = obj._id.toString();
+  delete obj._id;
+  delete obj.__v;
+  return obj;
+}
 
 app.use(cors());
 app.use(bodyParser.json());
 
-// Dummy in-memory annotations store
-let annotations = [];
-
-app.get('/api/annotations', (req, res) => {
-  res.json(annotations);
+// Get all annotations (optionally filter by videoId)
+app.get('/api/annotations', async (req, res) => {
+  const { videoId } = req.query;
+  const filter = videoId ? { videoId } : {};
+  const annotations = await Annotation.find(filter).sort({ timestamp: 1 });
+  res.json(annotations.map(mapAnnotation));
 });
 
-app.post('/api/annotations', (req, res) => {
-  const annotation = req.body;
-  annotation.id = Date.now();
-  annotations.push(annotation);
-  res.status(201).json(annotation);
+// Create a new annotation
+app.post('/api/annotations', async (req, res) => {
+  try {
+    const annotation = new Annotation(req.body);
+    await annotation.save();
+    res.status(201).json(mapAnnotation(annotation));
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
 });
 
-app.put('/api/annotations/:id', (req, res) => {
-  const { id } = req.params;
-  annotations = annotations.map(ann =>
-    ann.id == id ? { ...ann, ...req.body } : ann
-  );
-  res.json({ success: true });
+// Update an annotation
+app.put('/api/annotations/:id', async (req, res) => {
+  try {
+    const annotation = await Annotation.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+    res.json(mapAnnotation(annotation));
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
 });
 
-app.delete('/api/annotations/:id', (req, res) => {
-  const { id } = req.params;
-  annotations = annotations.filter(ann => ann.id != id);
-  res.json({ success: true });
+// Delete an annotation
+app.delete('/api/annotations/:id', async (req, res) => {
+  try {
+    await Annotation.findByIdAndDelete(req.params.id);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
 });
 
 app.listen(PORT, () => {

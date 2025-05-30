@@ -1,8 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
-  addAnnotation,
-  updateAnnotation,
+  addAnnotationAsync,
   setSelectedAnnotation,
 } from './annotationsSlice';
 import type {
@@ -16,6 +15,8 @@ interface Props {
   playing: boolean;
 }
 
+const DEFAULT_COLOR = '#0d6efd';
+
 const AnnotationsCanvas: React.FC<Props> = ({ currentTime, playing }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const dispatch = useDispatch();
@@ -24,7 +25,7 @@ const AnnotationsCanvas: React.FC<Props> = ({ currentTime, playing }) => {
   );
   const [isDrawing, setIsDrawing] = useState(false);
   const [startPos, setStartPos] = useState<{ x: number; y: number } | null>(null);
-  const [currentAnnotation, setCurrentAnnotation] = useState<Annotation | null>(null);
+  const [currentAnnotation, setCurrentAnnotation] = useState<Omit<Annotation, 'id'> | null>(null);
 
   // Drawing logic
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -38,7 +39,6 @@ const AnnotationsCanvas: React.FC<Props> = ({ currentTime, playing }) => {
       setIsDrawing(true);
       setStartPos({ x, y });
       setCurrentAnnotation({
-        id: Date.now().toString(),
         type: selectedTool,
         x,
         y,
@@ -46,21 +46,20 @@ const AnnotationsCanvas: React.FC<Props> = ({ currentTime, playing }) => {
         height: 0,
         timestamp: currentTime,
         duration: 3,
-        color: '#0d6efd',
+        color: DEFAULT_COLOR,
       });
     } else if (selectedTool === 'text') {
       const text = prompt('Enter text:');
       if (text) {
         dispatch(
-          addAnnotation({
-            id: Date.now().toString(),
+          addAnnotationAsync({
             type: 'text',
             x,
             y,
             text,
             timestamp: currentTime,
             duration: 3,
-            color: '#0d6efd',
+            color: DEFAULT_COLOR,
           })
         );
       }
@@ -84,10 +83,7 @@ const AnnotationsCanvas: React.FC<Props> = ({ currentTime, playing }) => {
     const y = e.clientY - rect.top;
     const updated = { ...currentAnnotation };
 
-    if (currentAnnotation.type === 'rectangle' || currentAnnotation.type === 'circle') {
-      updated.width = x - startPos.x;
-      updated.height = y - startPos.y;
-    } else if (currentAnnotation.type === 'line') {
+    if (currentAnnotation.type === 'rectangle' || currentAnnotation.type === 'circle' || currentAnnotation.type === 'line') {
       updated.width = x - startPos.x;
       updated.height = y - startPos.y;
     }
@@ -96,7 +92,7 @@ const AnnotationsCanvas: React.FC<Props> = ({ currentTime, playing }) => {
 
   const handleMouseUp = () => {
     if (isDrawing && currentAnnotation) {
-      dispatch(addAnnotation(currentAnnotation));
+      dispatch(addAnnotationAsync(currentAnnotation));
       setIsDrawing(false);
       setCurrentAnnotation(null);
       setStartPos(null);

@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
 export interface Annotation {
@@ -22,6 +22,8 @@ interface AnnotationsState {
   selectedAnnotationId: string | null;
   past: Annotation[][];
   future: Annotation[][];
+  loading: boolean;
+  error: string | null;
 }
 
 const initialState: AnnotationsState = {
@@ -30,41 +32,57 @@ const initialState: AnnotationsState = {
   selectedAnnotationId: null,
   past: [],
   future: [],
+  loading: false,
+  error: null,
 };
 
-const saveToLocalStorage = (annotations: Annotation[]) => {
-  localStorage.setItem('videoAnnotations', JSON.stringify(annotations));
-};
+// Async thunks for backend CRUD
+export const fetchAnnotations = createAsyncThunk(
+  'annotations/fetchAnnotations',
+  async () => {
+    const res = await fetch('http://localhost:5001/api/annotations');
+    return await res.json();
+  }
+);
+
+export const addAnnotationAsync = createAsyncThunk(
+  'annotations/addAnnotation',
+  async (annotation: Omit<Annotation, 'id'>) => {
+    const res = await fetch('http://localhost:5001/api/annotations', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(annotation),
+    });
+    return await res.json();
+  }
+);
+
+export const updateAnnotationAsync = createAsyncThunk(
+  'annotations/updateAnnotation',
+  async (annotation: Annotation) => {
+    const res = await fetch(`http://localhost:5001/api/annotations/${annotation.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(annotation),
+    });
+    return await res.json();
+  }
+);
+
+export const deleteAnnotationAsync = createAsyncThunk(
+  'annotations/deleteAnnotation',
+  async (id: string) => {
+    await fetch(`http://localhost:5001/api/annotations/${id}`, {
+      method: 'DELETE',
+    });
+    return id;
+  }
+);
 
 export const annotationsSlice = createSlice({
   name: 'annotations',
   initialState,
   reducers: {
-    loadAnnotations: (state) => {
-      const saved = localStorage.getItem('videoAnnotations');
-      if (saved) state.annotations = JSON.parse(saved);
-    },
-    addAnnotation: (state, action: PayloadAction<Annotation>) => {
-      state.past.push([...state.annotations]);
-      state.future = [];
-      state.annotations.push(action.payload);
-      saveToLocalStorage(state.annotations);
-    },
-    updateAnnotation: (state, action: PayloadAction<Annotation>) => {
-      state.past.push([...state.annotations]);
-      state.future = [];
-      state.annotations = state.annotations.map(ann =>
-        ann.id === action.payload.id ? action.payload : ann
-      );
-      saveToLocalStorage(state.annotations);
-    },
-    deleteAnnotation: (state, action: PayloadAction<string>) => {
-      state.past.push([...state.annotations]);
-      state.future = [];
-      state.annotations = state.annotations.filter(ann => ann.id !== action.payload);
-      state.selectedAnnotationId = null;
-      saveToLocalStorage(state.annotations);
-    },
     setSelectedTool: (state, action: PayloadAction<ToolType>) => {
       state.selectedTool = action.payload;
       state.selectedAnnotationId = null;
@@ -72,19 +90,11 @@ export const annotationsSlice = createSlice({
     setSelectedAnnotation: (state, action: PayloadAction<string | null>) => {
       state.selectedAnnotationId = action.payload;
     },
-    clearAnnotations: (state) => {
-      state.past.push([...state.annotations]);
-      state.future = [];
-      state.annotations = [];
-      state.selectedAnnotationId = null;
-      saveToLocalStorage(state.annotations);
-    },
     undo: (state) => {
       if (state.past.length > 0) {
         const previous = state.past.pop()!;
         state.future.push([...state.annotations]);
         state.annotations = previous;
-        saveToLocalStorage(state.annotations);
       }
     },
     redo: (state) => {
@@ -92,17 +102,47 @@ export const annotationsSlice = createSlice({
         const next = state.future.pop()!;
         state.past.push([...state.annotations]);
         state.annotations = next;
-        saveToLocalStorage(state.annotations);
       }
     },
+    clearAnnotations: (state) => {
+      state.past.push([...state.annotations]);
+      state.future = [];
+      state.annotations = [];
+      state.selectedAnnotationId = null;
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchAnnotations.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAnnotations.fulfilled, (state, action) => {
+        state.loading = false;
+        state.annotations = action.payload;
+      })
+      .addCase(fetchAnnotations.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to fetch annotations';
+      })
+      .addCase(addAnnotationAsync.fulfilled, (state, action) => {
+        state.annotations.push(action.payload);
+      })
+      .addCase(updateAnnotationAsync.fulfilled, (state, action) => {
+        state.annotations = state.annotations.map(ann =>
+          ann.id === action.payload.id ? action.payload : ann
+        );
+      })
+      .addCase(deleteAnnotationAsync.fulfilled, (state, action) => {
+        state.annotations = state.annotations.filter(ann => ann.id !== action.payload);
+        if (state.selectedAnnotationId === action.payload) {
+          state.selectedAnnotationId = null;
+        }
+      });
   },
 });
 
 export const {
-  loadAnnotations,
-  addAnnotation,
-  updateAnnotation,
-  deleteAnnotation,
   setSelectedTool,
   setSelectedAnnotation,
   clearAnnotations,

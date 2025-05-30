@@ -82,7 +82,7 @@ body {
 }
 
 .video-player {
-  max-width: 1060px;
+  max-width: 1000px;
   margin: 2rem auto;
   position: relative;
   overflow: hidden;

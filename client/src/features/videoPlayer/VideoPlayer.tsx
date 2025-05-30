@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { setPlaying, setCurrentTime, setDuration, setPlaybackRate } from './videoPlayerSlice';
-import { loadAnnotations, undo, redo } from '../annotations/annotationsSlice';
+import { fetchAnnotations, undo, redo } from '../annotations/annotationsSlice';
 import type { RootState } from '../../store/store';
 import AnnotationsCanvas from '../annotations/AnnotationsCanvas';
 import AnnotationToolbar from '../annotations/AnnotationToolbar';
@@ -19,7 +19,11 @@ const VideoPlayer: React.FC = () => {
   const { playing, currentTime, duration, playbackRate } = useSelector((state: RootState) => state.videoPlayer);
   const { annotations } = useSelector((state: RootState) => state.annotations);
 
-  useEffect(() => { dispatch(loadAnnotations()); }, [dispatch]);
+  // Fetch annotations from backend on mount
+  useEffect(() => {
+    dispatch(fetchAnnotations());
+  }, [dispatch]);
+
   useEffect(() => {
     if (!videoRef.current) return;
     if (playing) videoRef.current.play();
@@ -113,7 +117,7 @@ const VideoPlayer: React.FC = () => {
         color: '#0d6efd',
         textShadow: '0 2px 12px #0008'
       }}>
-        Video-Annotation-Tool
+        {/* Video-Annotation-Tool */}
       </div>
       {/* Main layout: player + description */}
       <div style={{
@@ -161,9 +165,9 @@ const VideoPlayer: React.FC = () => {
             {/* Progress bar markers */}
             <div className="progress-markers" style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 0 }}>
               {duration > 0 &&
-                annotations.map(ann => (
+                annotations.map((ann, idx) => (
                   <div
-                    key={ann.id}
+                    key={ann.id || idx}
                     style={{
                       position: 'absolute',
                       left: `${(ann.timestamp / duration) * 100}%`,
