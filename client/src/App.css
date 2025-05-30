@@ -1,3 +1,4 @@
+/* Base styles */
 body {
   font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
   background: #181818;
@@ -6,47 +7,122 @@ body {
   padding: 0;
 }
 
+/* Layout containers */
+.app-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #181818;
+}
+
+.app-header {
+  background: #23272f;
+  border-bottom: 2px solid #0d6efd;
+  box-shadow: 0 2px 8px rgba(13,110,253,0.08);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 0;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 12px 24px;
+}
+
+.logo {
+  width: 36px;
+  height: 36px;
+  margin-right: 16px;
+}
+
+.app-title {
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: #0d6efd;
+  letter-spacing: 0.02em;
+  text-shadow: 0 2px 12px #0008;
+}
+
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  background: #181818;
+  min-height: 0;
+  padding: 32px 0 24px 0;
+}
+
+.app-footer {
+  background: #23272f;
+  color: #aaa;
+  text-align: center;
+  padding: 18px 0 12px 0;
+  font-size: 1rem;
+  border-top: 2px solid #0d6efd;
+  letter-spacing: 0.01em;
+  box-shadow: 0 -2px 8px rgba(13,110,253,0.08);
+}
+
+/* Video player and panels */
+.video-player,
+.annotation-list,
+.properties-panel,
+.annotation-toolbar {
+  border: 2px solid #232323;
+  border-radius: 12px;
+  background: #23272f;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
 .video-player {
   max-width: 1060px;
   margin: 2rem auto;
-  background: #23272f;
-  border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.45);
-  overflow: hidden;
   position: relative;
+  overflow: hidden;
   transition: box-shadow 0.2s;
-  padding-bottom: 12px; /* Add this for extra space at the bottom */
+  padding-bottom: 12px;
 }
 
-.controls {
+.video-player:hover,
+.properties-panel:hover,
+.annotation-list:hover,
+.annotation-toolbar:hover {
+  box-shadow: 0 6px 24px rgba(13,110,253,0.12);
+  border-color: #0d6efd;
+}
+
+/* Controls */
+.controls,
+.controls-main {
   background: #1a1d23;
   display: flex;
   align-items: center;
-  gap: 1px;
-  border-bottom: none;
+  gap: 10px;
   border-radius: 0 0 16px 16px;
-  padding: 1px 2px;
-  flex-wrap: wrap;      /* Ensure controls wrap to next line if needed */
-  width: 100%;          /* Make controls take full width of player */
+  padding: 10px 20px;
+  width: 100%;
   box-sizing: border-box;
+  border-bottom: 1px solid #232323;
+  flex-wrap: wrap;
 }
 
-.video-player:hover {
-  box-shadow: 0 12px 48px rgba(0,0,0,0.6);
-}
-
-
-/* Decrease button and select size in controls */
 .controls button,
 .controls select {
   min-width: 36px;
   min-height: 32px;
   background: #292d36;
   border: 1.5px solid transparent;
-  padding: 5px 10px;      /* reduced from 8px 14px */
-  border-radius: 6px;     /* reduced from 8px */
+  padding: 5px 10px;
+  border-radius: 6px;
   color: #fff;
-  font-size: 12px;        /* reduced from 17px */
+  font-size: 12px;
   cursor: pointer;
   transition: background 0.18s, color 0.18s, border-color 0.18s;
   outline: none;
@@ -70,26 +146,101 @@ input[type="range"] {
   margin: 0 10px;
 }
 
+/* Progress markers */
 .progress-markers {
   position: relative;
   width: 100%;
   height: 0;
 }
 
-.annotation-layer {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  pointer-events: auto;
+/* Annotation toolbar */
+.annotation-toolbar-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #23272f;
+  border-radius: 0 0 12px 12px;
+  border-top: 1px solid #232323;
+  padding: 8px 20px;
+  margin-bottom: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
+.annotation-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  margin: 0;
+}
+
+.annotation-toolbar button {
+  background: #292d36;
+  border: 1.5px solid transparent;
+  padding: 4px 10px;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.18s, border-color 0.18s;
+  position: relative;
+}
+
+.annotation-toolbar button.active,
+.annotation-toolbar button:hover {
+  background: #0d6efd;
+  border-color: #0d6efd;
+  color: #fff;
+}
+
+.annotation-toolbar .tool-label {
+  font-size: 13px;
+  margin-left: 4px;
+  display: none;
+}
+
+@media (min-width: 600px) {
+  .annotation-toolbar .tool-label {
+    display: inline;
+  }
+}
+
+/* Undo/Redo */
+.annotation-undo-redo {
+  display: flex;
+  gap: 8px;
+}
+
+.annotation-undo-redo button {
+  background: #292d36;
+  border: 1.5px solid transparent;
+  padding: 4px 10px;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s;
+}
+
+.annotation-undo-redo button:hover {
+  background: #0d6efd;
+  border-color: #0d6efd;
+  color: #fff;
+}
+
+/* Annotation list */
 .annotation-list {
   min-width: 200px;
-  background: #23272f;
-  border-radius: 10px;
   padding: 12px;
   color: #fff;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
 }
 
 .annotation-list h4 {
@@ -121,13 +272,11 @@ input[type="range"] {
   color: #fff;
 }
 
+/* Properties panel */
 .properties-panel {
   min-width: 240px;
-  background: #23272f;
-  border-radius: 10px;
   padding: 16px;
   color: #fff;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
 }
 
 .properties-panel h4 {
@@ -172,96 +321,7 @@ input[type="range"] {
   background: #c0392b;
 }
 
-.video-player,
-.properties-panel,
-.annotation-list,
-.annotation-toolbar {
-  border: 2px solid #232323;
-  border-radius: 12px;
-  background: #23272f;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-  transition: box-shadow 0.2s, border-color 0.2s;
-}
-
-.video-player:hover,
-.properties-panel:hover,
-.annotation-list:hover,
-.annotation-toolbar:hover {
-  box-shadow: 0 6px 24px rgba(13,110,253,0.12);
-  border-color: #0d6efd;
-}
-
-@media (max-width: 1100px) {
-  .video-player { max-width: 100%; }
-  .controls { flex-wrap: wrap; }
-  .annotation-list, .properties-panel { min-width: 140px; }
-}
-
-@media (max-width: 700px) {
-  .video-player { margin: 0; border-radius: 0; }
-  .controls { padding: 8px 4px; font-size: 15px; }
-  .annotation-list, .properties-panel { padding: 6px; }
-}
-
-/* Horizontal annotation toolbar below controls */
-.annotation-toolbar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 20px 8px 20px;
-  background: #20232a;
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
-  border-top: 1px solid #232323;
-  width: 100%;
-  box-sizing: border-box;
-  margin: 0;
-}
-
-.annotation-toolbar button {
-  background: #292d36;
-  border: 1.5px solid transparent;
-  padding: 5px 10px;
-  border-radius: 6px;
-  color: #fff;
-  font-size: 15px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: background 0.18s, border-color 0.18s;
-}
-
-.annotation-toolbar button.active,
-.annotation-toolbar button:hover {
-  background: #0d6efd;
-  border-color: #0d6efd;
-  color: #fff;
-}
-
-.annotation-toolbar .tool-label {
-  font-size: 13px;
-  margin-left: 4px;
-  display: none; /* Hide label on small screens */
-}
-
-@media (min-width: 600px) {
-  .annotation-toolbar .tool-label {
-    display: inline;
-  }
-}
-.controls-main {
-  background: #1a1d23;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  border-radius: 0 0 0 0;
-  padding: 10px 20px;
-  width: 100%;
-  box-sizing: border-box;
-  border-bottom: 1px solid #232323;
-}
-
+/* Speed buttons */
 .speed-buttons {
   display: flex;
   gap: 4px;
@@ -286,65 +346,15 @@ input[type="range"] {
   color: #fff;
 }
 
-.annotation-toolbar-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  background: #23272f;
-  border-radius: 0 0 12px 12px;
-  border-top: 1px solid #232323;
-  padding: 8px 20px;
-  margin-bottom: 0;
-  width: 100%;
-  box-sizing: border-box;
+/* Responsive */
+@media (max-width: 1100px) {
+  .video-player { max-width: 100%; }
+  .controls { flex-wrap: wrap; }
+  .annotation-list, .properties-panel { min-width: 140px; }
 }
 
-.annotation-toolbar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.annotation-toolbar button {
-  background: #292d36;
-  border: 1.5px solid transparent;
-  padding: 4px 10px;
-  border-radius: 6px;
-  color: #fff;
-  font-size: 13px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  transition: background 0.18s, border-color 0.18s;
-}
-
-.annotation-toolbar button.active,
-.annotation-toolbar button:hover {
-  background: #0d6efd;
-  border-color: #0d6efd;
-  color: #fff;
-}
-
-.annotation-undo-redo {
-  display: flex;
-  gap: 6px;
-}
-
-.annotation-undo-redo button {
-  background: #292d36;
-  border: 1.5px solid transparent;
-  padding: 4px 10px;
-  border-radius: 6px;
-  color: #fff;
-  font-size: 13px;
-  cursor: pointer;
-  transition: background 0.18s, border-color 0.18s;
-}
-
-.annotation-undo-redo button:hover {
-  background: #0d6efd;
-  border-color: #0d6efd;
-  color: #fff;
+@media (max-width: 700px) {
+  .video-player { margin: 0; border-radius: 0; }
+  .controls { padding: 8px 4px; font-size: 15px; }
+  .annotation-list, .properties-panel { padding: 6px; }
 }

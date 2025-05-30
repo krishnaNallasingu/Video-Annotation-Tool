@@ -1,15 +1,17 @@
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { Provider } from 'react-redux';
+import {store} from './store/store'; 
+import App from './App';
+import VideoPlayer from './features/videoPlayer/VideoPlayer';
+import './App.css';
 
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import { Provider } from 'react-redux'
-import { store } from './store/store'
-import './index.css'
-import App from './App.tsx'
-
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
     <Provider store={store}>
-      <App />
+      <App>
+        <VideoPlayer />
+      </App>
     </Provider>
-  </StrictMode>,
-)
+  </React.StrictMode>
+);
