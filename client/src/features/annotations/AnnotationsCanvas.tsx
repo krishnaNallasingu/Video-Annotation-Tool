@@ -283,9 +283,9 @@ const animationFrameRef = useRef<number | null>(null);
     }
     loop();
     return () => {
-      if (animationFrameRef.current !== undefined) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
+      if (animationFrameRef.current !== null) {
+  cancelAnimationFrame(animationFrameRef.current);
+}
     };
     // Only re-run if these change
     // eslint-disable-next-line
