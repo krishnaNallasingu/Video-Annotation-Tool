@@ -83,3 +83,6 @@ app.delete('/api/annotations/:id', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
+
+
+// working fine and deploying...
