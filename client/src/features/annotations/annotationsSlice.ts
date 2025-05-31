@@ -3,6 +3,7 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
+
 export interface Annotation {
   id: string;
   type: 'circle' | 'rectangle' | 'line' | 'text';

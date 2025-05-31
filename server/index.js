@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -33,7 +34,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
-  res.send('<h2>Welcome to the Video Annotation Tool Backend API</h2><p>Use <code>/api/annotations</code> for annotation endpoints.<i> Thank You..</i></p>');
+  res.send('<hr><h2><center>Welcome to the Video Annotation Tool Backend API</h2><p>Use <code>/api/annotations</code> for annotation endpoints.<i> Thank You..</i></center></p>');
 });
 
 
