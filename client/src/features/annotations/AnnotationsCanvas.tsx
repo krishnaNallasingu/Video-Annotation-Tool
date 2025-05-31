@@ -284,7 +284,9 @@ const AnnotationsCanvas: React.FC<Props> = ({ currentTime, playing }) => {
     }
     loop();
     return () => {
-      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+      if (animationFrameRef.current !== undefined) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
     };
     // Only re-run if these change
     // eslint-disable-next-line
