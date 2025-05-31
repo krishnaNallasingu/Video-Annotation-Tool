@@ -26,7 +26,7 @@ const VideoPlayer: React.FC = () => {
 
   const [showFullDesc, setShowFullDesc] = useState(false);
   const isLong = description.length > 180;
-  const descToShow = showFullDesc || !isLong ? description : description.slice(0, 180) + '...';
+  // const descToShow = showFullDesc || !isLong ? description : description.slice(0, 180) + '...';
 
   // --- Style Objects ---
   const layoutStyles = {
