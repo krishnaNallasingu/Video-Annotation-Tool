@@ -188,8 +188,7 @@ const AnnotationsCanvas: React.FC<Props> = ({ currentTime, playing }) => {
   };
 
   // Performance: requestAnimationFrame drawing loop
-  const animationFrameRef = useRef<number>();
-
+const animationFrameRef = useRef<number | null>(null);
   const drawCanvas = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
