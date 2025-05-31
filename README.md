@@ -136,15 +136,15 @@ https://video-annotation-tool.onrender.com/api/annotations
 
 ### Main Video Annotation Interface
 
-![Main UI](screenshots/main-ui.png)
+![Home Page](resources/home.png)
 
 ### Annotation List and Properties
 
-![Annotation List](screenshots/annotation-list.png)
+![Annotation List](resources/annotation_list.png)
 
 ### Adding and Editing Annotations
 
-![Add/Edit Annotation](screenshots/add-edit-annotation.png)
+![Add/Edit Annotation](resources/annotations_edit.png)
 
 > _Screenshots are for demonstration. Please see the live demo for the latest UI._
 

@@ -4,12 +4,13 @@ import { useAppDispatch } from '../../store/hooks'; // adjust the path as needed
 import { updateAnnotationAsync, deleteAnnotationAsync } from './annotationsSlice';
 import type { RootState } from '../../store/store';
 
+
 const AnnotationProperties: React.FC = () => {
   const dispatch = useAppDispatch();
   const { annotations, selectedAnnotationId } = useSelector((state: RootState) => state.annotations);
   const annotation = annotations.find(a => a.id === selectedAnnotationId);
 
-  if (!annotation) return <div className="properties-panel">No annotation selected</div>;
+  if (!annotation) return <div className="properties-panel"><i>No annotation selected..</i></div>;
 
   const handleChange = (field: string, value: any) => {
     dispatch(updateAnnotationAsync({ ...annotation, [field]: value }));
@@ -17,15 +18,44 @@ const AnnotationProperties: React.FC = () => {
 
   return (
     <div className="properties-panel">
-      <h4>Properties</h4>
-      <div>
-        <label>Color:</label>
-        <input
-          type="color"
-          value={annotation.color}
-          onChange={e => handleChange('color', e.target.value)}
-        />
-      </div>
+      <h4 style={{ color: '#2ecc71', marginBottom: 10 }}>Properties</h4>      
+      <div style={{
+  display: 'flex',
+  alignItems: 'center',
+  gap: 14,
+  marginBottom: 18,
+  marginTop: 10
+}}>
+  <label
+    htmlFor="annotation-color"
+    style={{
+      fontWeight: 500,
+      color: '#17c3b2',
+      marginRight: 8,
+      minWidth: 90
+    }}
+  >
+    Change color:
+  </label>
+  <input
+    id="annotation-color"
+    type="color"
+    value={annotation.color}
+    onChange={e => handleChange('color', e.target.value)}
+    style={{
+      width: 36,
+      height: 36,
+      border: 'none',
+      borderRadius: '50%',
+      background: 'none',
+      cursor: 'pointer',
+      boxShadow: '0 1px 4px #0001',
+      padding: 0,
+      outline: '2px solid #0d6efd22'
+    }}
+    title="Pick annotation color"
+  />
+</div>
       <div>
         <label>Timestamp:</label>
         <input

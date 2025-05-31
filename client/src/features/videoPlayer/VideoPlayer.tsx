@@ -26,7 +26,6 @@ const VideoPlayer: React.FC = () => {
 
   const [showFullDesc, setShowFullDesc] = useState(false);
   const isLong = description.length > 180;
-  // const descToShow = showFullDesc || !isLong ? description : description.slice(0, 180) + '...';
 
   // --- Style Objects ---
   const layoutStyles = {
@@ -146,7 +145,6 @@ const VideoPlayer: React.FC = () => {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-    // eslint-disable-next-line
   }, [playing, currentTime, duration]);
 
   const seekBy = useCallback((seconds: number) => {
@@ -326,7 +324,7 @@ const VideoPlayer: React.FC = () => {
       <aside className="video-right-col" style={rightColStyles}>
         {/* Video Description in its own box */}
         <div className="video-description-box" style={descriptionBoxStyles(showFullDesc)}>
-          <div style={{ fontWeight: 600, color: '#0d6efd', marginBottom: 4, fontSize: '1.13em' }}>
+          <div style={{ fontWeight: 600, color: '#2ecc71', marginBottom: 4, fontSize: '1.13em' }}>
             Video Description
           </div>
           <div style={{ display: 'inline', whiteSpace: 'pre-line' }}>
@@ -402,6 +400,17 @@ const VideoPlayer: React.FC = () => {
         </div>
         {/* Annotation List below description box */}
         <div className="annotation-list-box" style={annotationListBoxStyles}>
+          <div
+            style={{
+              fontWeight: 600,
+              color: '#2ecc71',
+              fontSize: '1.13em',
+              marginBottom: 4,
+              letterSpacing: '0.01em'
+            }}
+          >
+            Annotation List
+          </div>
           <AnnotationList />
         </div>
       </aside>

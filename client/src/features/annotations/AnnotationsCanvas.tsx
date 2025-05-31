@@ -1,13 +1,8 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { useAppDispatch } from '../../store/hooks'; // adjust path as needed
-import {
-  addAnnotationAsync,
-  setSelectedAnnotation,
-} from './annotationsSlice';
-import type {
-  Annotation,
-} from './annotationsSlice';
+import { useAppDispatch } from '../../store/hooks';
+import { addAnnotationAsync, setSelectedAnnotation} from './annotationsSlice';
+import type { Annotation } from './annotationsSlice';
 import type { RootState } from '../../store/store';
 
 interface Props {
@@ -15,7 +10,7 @@ interface Props {
   playing: boolean;
 }
 
-const DEFAULT_COLOR = '#0d6efd';
+const DEFAULT_COLOR = '#1e90ff';
 
 const AnnotationsCanvas: React.FC<Props> = ({ currentTime, playing }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
