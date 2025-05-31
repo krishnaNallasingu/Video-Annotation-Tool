@@ -1,11 +1,13 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../../store/store';
-import { useAppDispatch } from '../../store/hooks'; // adjust the path as needed
+import { useAppDispatch } from '../../store/hooks';
 import {
   addAnnotationAsync,
   setSelectedAnnotation,
   deleteAnnotationAsync,
+  updateAnnotationAsync,
+  updateAnnotation,
 } from './annotationsSlice';
 
 import type { ToolType, Annotation } from './annotationsSlice';
@@ -24,8 +26,10 @@ const AnnotationOverlay: React.FC<Props> = ({ tool, videoTime, isPaused }) => {
   const selectedId = useSelector((state: RootState) => state.annotations.selectedAnnotationId);
 
   const [drawing, setDrawing] = useState<Omit<Annotation, 'id'> | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState<{ dx: number; dy: number } | null>(null);
 
+  // Resize canvas to fit parent
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -43,6 +47,60 @@ const AnnotationOverlay: React.FC<Props> = ({ tool, videoTime, isPaused }) => {
     return () => window.removeEventListener('resize', resizeCanvas);
   }, []);
 
+  // Drag-to-move logic using window events
+  useEffect(() => {
+    if (!isDragging) return;
+
+    const handleWindowMouseMove = (e: MouseEvent) => {
+      if (!isDragging || !dragOffset || !selectedId) return;
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const ann = annotations.find(a => a.id === selectedId);
+      if (ann) {
+        const newX = x - dragOffset.dx;
+        const newY = y - dragOffset.dy;
+        // Local update for smooth drag
+        dispatch(updateAnnotation({ ...ann, x: newX, y: newY }));
+      }
+    };
+
+    const handleWindowMouseUp = () => {
+      if (isDragging && dragOffset && selectedId) {
+        const ann = annotations.find(a => a.id === selectedId);
+        if (ann) {
+          // Sync with backend on drag end
+          dispatch(updateAnnotationAsync(ann));
+        }
+      }
+      setIsDragging(false);
+      setDragOffset(null);
+    };
+
+    window.addEventListener('mousemove', handleWindowMouseMove);
+    window.addEventListener('mouseup', handleWindowMouseUp);
+
+    return () => {
+      window.removeEventListener('mousemove', handleWindowMouseMove);
+      window.removeEventListener('mouseup', handleWindowMouseUp);
+    };
+  }, [isDragging, dragOffset, selectedId, annotations, dispatch]);
+
+  // Keyboard delete
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Delete' && selectedId) {
+        dispatch(deleteAnnotationAsync(selectedId));
+        dispatch(setSelectedAnnotation(null));
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedId, dispatch]);
+
+  // Drawing and selection logic
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!isPaused || tool === 'none') return;
     const canvas = canvasRef.current;
@@ -62,6 +120,7 @@ const AnnotationOverlay: React.FC<Props> = ({ tool, videoTime, isPaused }) => {
       if (clicked) {
         dispatch(setSelectedAnnotation(clicked.id));
         setDragOffset({ dx: x - clicked.x, dy: y - clicked.y });
+        setIsDragging(true);
       } else {
         dispatch(setSelectedAnnotation(null));
       }
@@ -108,12 +167,7 @@ const AnnotationOverlay: React.FC<Props> = ({ tool, videoTime, isPaused }) => {
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    if (tool === 'select' && selectedId && dragOffset) {
-      // For moving selected annotation (optional: implement as backend update)
-      // Not implemented here for backend sync, but you can add updateAnnotationAsync if needed
-      return;
-    }
-
+    // Drawing new annotation
     if (drawing) {
       setDrawing({ ...drawing, width: x - drawing.x, height: y - drawing.y });
     }
@@ -124,16 +178,10 @@ const AnnotationOverlay: React.FC<Props> = ({ tool, videoTime, isPaused }) => {
       dispatch(addAnnotationAsync(drawing));
       setDrawing(null);
     }
-    setDragOffset(null);
+    // Drag end handled by window mouseup
   };
 
-  const handleKeyDown = (e: KeyboardEvent) => {
-    if (e.key === 'Delete' && selectedId) {
-      dispatch(deleteAnnotationAsync(selectedId));
-      dispatch(setSelectedAnnotation(null));
-    }
-  };
-
+  // Drawing annotations on canvas
   const drawAnnotation = (
     ctx: CanvasRenderingContext2D,
     ann: Annotation | Omit<Annotation, 'id'>,
@@ -185,11 +233,6 @@ const AnnotationOverlay: React.FC<Props> = ({ tool, videoTime, isPaused }) => {
 
     if (drawing) drawAnnotation(ctx, drawing);
   }, [annotations, drawing, videoTime, selectedId]);
-
-  useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedId]);
 
   return (
     <canvas

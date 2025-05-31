@@ -6,7 +6,11 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      '/api': 'http://localhost:5001/'
-    }
+      '/api': 'http://localhost:5001/',
+    },
+  },
+  test: {
+    globals: true,
+    environment: 'jsdom', // Needed for testing React components
   },
 })

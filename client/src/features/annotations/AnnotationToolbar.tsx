@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { setSelectedTool } from './annotationsSlice';
 import type { RootState } from '../../store/store';
@@ -17,6 +17,34 @@ const tools: { type: ToolType; label: string; icon: React.ReactNode }[] = [
 const AnnotationToolbar: React.FC = () => {
   const dispatch = useAppDispatch();
   const selectedTool = useSelector((state: RootState) => state.annotations.selectedTool);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't interfere with typing in input/textarea fields
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+
+      switch (e.key.toLowerCase()) {
+        case 'c':
+          dispatch(setSelectedTool('circle'));
+          break;
+        case 'r':
+          dispatch(setSelectedTool('rectangle'));
+          break;
+        case 'l':
+          dispatch(setSelectedTool('line'));
+          break;
+        case 't':
+          dispatch(setSelectedTool('text'));
+          break;
+        case 'v':
+          dispatch(setSelectedTool('select'));
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [dispatch]);
 
   return (
     <div className="annotation-toolbar">

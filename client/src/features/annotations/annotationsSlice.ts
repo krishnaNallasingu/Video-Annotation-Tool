@@ -3,7 +3,6 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-
 export interface Annotation {
   id: string;
   type: 'circle' | 'rectangle' | 'line' | 'text';
@@ -113,6 +112,14 @@ export const annotationsSlice = createSlice({
       state.annotations = [];
       state.selectedAnnotationId = null;
     },
+    // Local update for drag/move (optimistic UI)
+    updateAnnotation: (state, action: PayloadAction<Annotation>) => {
+      state.past.push([...state.annotations]);
+      state.future = [];
+      state.annotations = state.annotations.map(ann =>
+        ann.id === action.payload.id ? action.payload : ann
+      );
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -129,14 +136,20 @@ export const annotationsSlice = createSlice({
         state.error = action.error.message || 'Failed to fetch annotations';
       })
       .addCase(addAnnotationAsync.fulfilled, (state, action) => {
+        state.past.push([...state.annotations]);
+        state.future = [];
         state.annotations.push(action.payload);
       })
       .addCase(updateAnnotationAsync.fulfilled, (state, action) => {
+        state.past.push([...state.annotations]);
+        state.future = [];
         state.annotations = state.annotations.map(ann =>
           ann.id === action.payload.id ? action.payload : ann
         );
       })
       .addCase(deleteAnnotationAsync.fulfilled, (state, action) => {
+        state.past.push([...state.annotations]);
+        state.future = [];
         state.annotations = state.annotations.filter(ann => ann.id !== action.payload);
         if (state.selectedAnnotationId === action.payload) {
           state.selectedAnnotationId = null;
@@ -151,6 +164,7 @@ export const {
   clearAnnotations,
   undo,
   redo,
+  updateAnnotation,
 } = annotationsSlice.actions;
 
 export default annotationsSlice.reducer;

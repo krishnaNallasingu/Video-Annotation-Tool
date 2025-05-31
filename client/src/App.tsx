@@ -55,15 +55,19 @@ const App: React.FC<React.PropsWithChildren> = ({ children }) => {
               height: 45,
               marginRight: 20
             }} />
-            <span className="app-title" style={{
-              fontWeight: 700,
-              fontSize: '1.8rem',
-              letterSpacing: '0.03em',
-              color: '#ffbf00',
-              textShadow: '0 2px 12px #0008'
-            }}>
-              Video Annotation Tool
-            </span>
+            <Link to="/" style={{ textDecoration: 'none' }}>
+              <span className="app-title" style={{
+                fontWeight: 700,
+                fontSize: '1.8rem',
+                letterSpacing: '0.03em',
+                color: '#ffbf00',
+                textShadow: '0 2px 12px #0008',
+                cursor: 'pointer'
+              }}>
+                Video Annotation Tool
+              </span>
+            </Link>
+
             <nav style={{ marginLeft: 'auto', display: 'flex', gap: 15 }}>
               <Link to="/" className="header-btn">Home</Link>
               <Link to="/about" className="header-btn">About</Link>

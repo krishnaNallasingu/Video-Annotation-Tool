@@ -1,7 +1,12 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useAppDispatch } from '../../store/hooks';
-import { addAnnotationAsync, setSelectedAnnotation} from './annotationsSlice';
+import {
+  addAnnotationAsync,
+  setSelectedAnnotation,
+  updateAnnotation,
+  updateAnnotationAsync,
+} from './annotationsSlice';
 import type { Annotation } from './annotationsSlice';
 import type { RootState } from '../../store/store';
 
@@ -22,13 +27,18 @@ const AnnotationsCanvas: React.FC<Props> = ({ currentTime, playing }) => {
   const [startPos, setStartPos] = useState<{ x: number; y: number } | null>(null);
   const [currentAnnotation, setCurrentAnnotation] = useState<Omit<Annotation, 'id'> | null>(null);
 
-  // Drawing logic
+  // Drag-to-move state
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState<{ dx: number; dy: number } | null>(null);
+
+  // Drawing or drag logic
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (playing) return;
     if (!canvasRef.current) return;
     const rect = canvasRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
+
+    if (playing) return;
 
     if (selectedTool === 'circle' || selectedTool === 'rectangle' || selectedTool === 'line') {
       setIsDrawing(true);
@@ -59,30 +69,105 @@ const AnnotationsCanvas: React.FC<Props> = ({ currentTime, playing }) => {
         );
       }
     } else if (selectedTool === 'select') {
-      // Hit test for selection
-      const found = annotations.find(
-        ann =>
-          x >= ann.x &&
-          y >= ann.y &&
-          (ann.width ? x <= ann.x + ann.width : true) &&
-          (ann.height ? y <= ann.y + ann.height : true)
-      );
-      dispatch(setSelectedAnnotation(found ? found.id : null));
+      // Hit test for selection & drag
+      const hitTest = (ann: Annotation, px: number, py: number) => {
+        if (ann.type === 'rectangle') {
+          return (
+            px >= ann.x &&
+            py >= ann.y &&
+            px <= ann.x + (ann.width || 0) &&
+            py <= ann.y + (ann.height || 0)
+          );
+        }
+        if (ann.type === 'circle') {
+          const cx = ann.x + (ann.width || 0) / 2;
+          const cy = ann.y + (ann.height || 0) / 2;
+          const rx = Math.abs((ann.width || 0) / 2);
+          const ry = Math.abs((ann.height || 0) / 2);
+          if (rx === 0 || ry === 0) return false;
+          // Ellipse equation: ((x-cx)/rx)^2 + ((y-cy)/ry)^2 <= 1
+          return (
+            Math.pow((px - cx) / rx, 2) + Math.pow((py - cy) / ry, 2) <= 1
+          );
+        }
+        if (ann.type === 'line') {
+          // Simple line proximity check
+          const x1 = ann.x;
+          const y1 = ann.y;
+          const x2 = ann.x + (ann.width || 0);
+          const y2 = ann.y + (ann.height || 0);
+          const dist =
+            Math.abs(
+              (y2 - y1) * px -
+              (x2 - x1) * py +
+              x2 * y1 -
+              y2 * x1
+            ) /
+            Math.sqrt(Math.pow(y2 - y1, 2) + Math.pow(x2 - x1, 2));
+          // Allow 6px tolerance
+          return dist < 6;
+        }
+        if (ann.type === 'text') {
+          // Use canvas to measure text width
+          const canvas = canvasRef.current;
+          if (!canvas) return false;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) return false;
+          ctx.font = '16px Arial';
+          const text = ann.text || '';
+          const width = ctx.measureText(text).width;
+          const height = 20; // Approximate text height
+          return (
+            px >= ann.x &&
+            py >= ann.y - height &&
+            px <= ann.x + width &&
+            py <= ann.y
+          );
+        }
+      };
+
+      const found = annotations.find(ann => hitTest(ann, x, y));
+      if (found) {
+        dispatch(setSelectedAnnotation(found.id));
+        setDragOffset({ dx: x - found.x, dy: y - found.y });
+        setIsDragging(true);
+      } else {
+        dispatch(setSelectedAnnotation(null));
+      }
     }
   };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!isDrawing || !currentAnnotation || !canvasRef.current || !startPos) return;
-    const rect = canvasRef.current.getBoundingClientRect();
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    const updated = { ...currentAnnotation };
 
-    if (currentAnnotation.type === 'rectangle' || currentAnnotation.type === 'circle' || currentAnnotation.type === 'line') {
-      updated.width = x - startPos.x;
-      updated.height = y - startPos.y;
+    // Drag-to-move
+    if (isDragging && selectedAnnotationId && dragOffset) {
+      const ann = annotations.find(a => a.id === selectedAnnotationId);
+      if (ann) {
+        const newX = x - dragOffset.dx;
+        const newY = y - dragOffset.dy;
+        dispatch(updateAnnotation({ ...ann, x: newX, y: newY }));
+      }
+      return;
     }
-    setCurrentAnnotation(updated);
+
+    // Drawing
+    if (isDrawing && currentAnnotation && startPos) {
+      const updated = { ...currentAnnotation };
+      if (
+        currentAnnotation.type === 'rectangle' ||
+        currentAnnotation.type === 'circle' ||
+        currentAnnotation.type === 'line'
+      ) {
+        updated.width = x - startPos.x;
+        updated.height = y - startPos.y;
+      }
+      setCurrentAnnotation(updated);
+    }
   };
 
   const handleMouseUp = () => {
@@ -92,10 +177,20 @@ const AnnotationsCanvas: React.FC<Props> = ({ currentTime, playing }) => {
       setCurrentAnnotation(null);
       setStartPos(null);
     }
+    if (isDragging && selectedAnnotationId) {
+      const ann = annotations.find(a => a.id === selectedAnnotationId);
+      if (ann) {
+        dispatch(updateAnnotationAsync(ann));
+      }
+      setIsDragging(false);
+      setDragOffset(null);
+    }
   };
 
-  // Draw annotations
-  useEffect(() => {
+  // Performance: requestAnimationFrame drawing loop
+  const animationFrameRef = useRef<number>();
+
+  const drawCanvas = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -140,8 +235,14 @@ const AnnotationsCanvas: React.FC<Props> = ({ currentTime, playing }) => {
           ctx.setLineDash([4, 2]);
           ctx.strokeStyle = '#ff0';
           ctx.lineWidth = 2;
-          ctx.strokeRect(ann.x - 4, ann.y - 4, (ann.width || 0) + 8, (ann.height || 0) + 8);
-          ctx.setLineDash([]);
+          if (ann.type === 'text' && ann.text) {
+            ctx.font = '16px Arial';
+            const textWidth = ctx.measureText(ann.text).width;
+            const textHeight = 20;
+            ctx.strokeRect(ann.x - 4, ann.y - textHeight - 4, textWidth + 8, textHeight + 8);
+          } else {
+            ctx.strokeRect(ann.x - 4, ann.y - 4, (ann.width || 0) + 8, (ann.height || 0) + 8);
+          } ctx.setLineDash([]);
         }
         ctx.restore();
       }
@@ -174,6 +275,19 @@ const AnnotationsCanvas: React.FC<Props> = ({ currentTime, playing }) => {
       }
       ctx.restore();
     }
+  };
+
+  useEffect(() => {
+    function loop() {
+      drawCanvas();
+      animationFrameRef.current = requestAnimationFrame(loop);
+    }
+    loop();
+    return () => {
+      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+    };
+    // Only re-run if these change
+    // eslint-disable-next-line
   }, [annotations, currentTime, isDrawing, currentAnnotation, selectedAnnotationId]);
 
   // Resize canvas to fit parent

@@ -232,7 +232,21 @@ const VideoPlayer: React.FC = () => {
               step={0.01}
               value={currentTime}
               onChange={handleSeek}
-              style={{ width: '100%', accentColor: '#0d6efd', height: 6, margin: '10px 0' }}
+              className="custom-seeker"
+              style={{ width: '100%', height: 8, margin: '10px 0', background: 'transparent' }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                height: 8,
+                width: `${(currentTime / duration) * 100}%`,
+                background: 'linear-gradient(90deg, #0d6efd 60%, #23272f 100%)',
+                borderRadius: 4,
+                pointerEvents: 'none',
+                transition: 'width 0.18s'
+              }}
             />
             {/* Progress bar markers */}
             <div className="progress-markers" style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 0 }}>
@@ -240,18 +254,16 @@ const VideoPlayer: React.FC = () => {
                 annotations.map((ann, idx) => (
                   <div
                     key={ann.id || idx}
+                    className="marker"
                     style={{
-                      position: 'absolute',
                       left: `${(ann.timestamp / duration) * 100}%`,
-                      top: -8,
-                      width: 4,
-                      height: 8,
-                      background: '#0d6efd',
-                      opacity: 0.7,
-                      borderRadius: 2,
-                      transition: 'left 0.2s'
                     }}
-                  />
+                    tabIndex={0}
+                  >
+                    <div className="marker-tooltip">
+                      {ann.type} @ {Math.round(ann.timestamp * 10) / 10}s
+                    </div>
+                  </div>
                 ))}
             </div>
           </div>
@@ -476,6 +488,121 @@ const VideoPlayer: React.FC = () => {
             height: 220px !important;
             border-radius: 8px 8px 0 0 !important;
           }
+        }
+        input[type="range"].custom-seeker {
+          -webkit-appearance: none;
+          width: 100%;
+          height: 8px;
+          background: linear-gradient(90deg, #0d6efd 0%, #23272f 100%);
+          border-radius: 4px;
+          outline: none;
+          transition: box-shadow 0.2s;
+          box-shadow: 0 2px 8px #0d6efd22;
+        }
+        input[type="range"].custom-seeker:hover,
+        input[type="range"].custom-seeker:focus {
+          box-shadow: 0 4px 16px #0d6efd55;
+          background: linear-gradient(90deg, #0d6efd 40%, #23272f 100%);
+        }
+        input[type="range"].custom-seeker::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+          background: #fff;
+          border: 3px solid #0d6efd;
+          box-shadow: 0 2px 8px #0d6efd55;
+          transition: transform 0.18s, box-shadow 0.18s;
+          cursor: pointer;
+        }
+        input[type="range"].custom-seeker:hover::-webkit-slider-thumb,
+        input[type="range"].custom-seeker:focus::-webkit-slider-thumb {
+          transform: scale(1.18);
+          box-shadow: 0 4px 16px #0d6efd88;
+        }
+        input[type="range"].custom-seeker::-moz-range-thumb {
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+          background: #fff;
+          border: 3px solid #0d6efd;
+          box-shadow: 0 2px 8px #0d6efd55;
+          transition: transform 0.18s, box-shadow 0.18s;
+          cursor: pointer;
+        }
+        input[type="range"].custom-seeker:hover::-moz-range-thumb,
+        input[type="range"].custom-seeker:focus::-moz-range-thumb {
+          transform: scale(1.18);
+          box-shadow: 0 4px 16px #0d6efd88;
+        }
+        input[type="range"].custom-seeker::-ms-thumb {
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+          background: #fff;
+          border: 3px solid #0d6efd;
+          box-shadow: 0 2px 8px #0d6efd55;
+          transition: transform 0.18s, box-shadow 0.18s;
+          cursor: pointer;
+        }
+        input[type="range"].custom-seeker:focus::-ms-fill-lower {
+          background: #0d6efd;
+        }
+        input[type="range"].custom-seeker::-webkit-slider-runnable-track {
+          height: 8px;
+          border-radius: 4px;
+        }
+        input[type="range"].custom-seeker::-ms-fill-lower {
+          background: #0d6efd;
+        }
+        input[type="range"].custom-seeker::-ms-fill-upper {
+          background: #23272f;
+        }
+        input[type="range"].custom-seeker:focus {
+          outline: none;
+        }
+        input[type="range"].custom-seeker::-ms-tooltip {
+          display: none;
+        }
+
+        /* Progress marker styles */
+        .progress-markers .marker {
+          position: absolute;
+          top: -8px;
+          width: 8px;
+          height: 16px;
+          background: #0d6efd;
+          opacity: 0.7;
+          border-radius: 3px;
+          transition: transform 0.18s, box-shadow 0.18s, background 0.18s;
+          cursor: pointer;
+          z-index: 2;
+        }
+        .progress-markers .marker:hover {
+          transform: scale(1.4);
+          background: #ffb300;
+          box-shadow: 0 2px 12px #ffb30055;
+          opacity: 1;
+        }
+        .progress-markers .marker-tooltip {
+          position: absolute;
+          left: 50%;
+          top: -32px;
+          transform: translateX(-50%);
+          background: #23272f;
+          color: #fff;
+          padding: 4px 10px;
+          border-radius: 6px;
+          font-size: 0.95em;
+          white-space: nowrap;
+          pointer-events: none;
+          opacity: 0;
+          transition: opacity 0.18s;
+          z-index: 10;
+        }
+        .progress-markers .marker:hover .marker-tooltip {
+          opacity: 1;
         }
       `}
       </style>

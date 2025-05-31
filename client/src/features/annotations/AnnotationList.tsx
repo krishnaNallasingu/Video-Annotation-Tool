@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { useAppDispatch } from '../../store/hooks'; // adjust the path as needed
+import { useAppDispatch } from '../../store/hooks';
 
 import { setSelectedAnnotation, deleteAnnotationAsync } from './annotationsSlice';
 import type { RootState } from '../../store/store';
@@ -9,9 +9,45 @@ const AnnotationList: React.FC = () => {
   const dispatch = useAppDispatch();
   const { annotations, selectedAnnotationId } = useSelector((state: RootState) => state.annotations);
 
+  const handleExport = () => {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(annotations, null, 2));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", "annotations.json");
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+  };
+
   return (
     <div className="annotation-list">
-      <h4>Annotations</h4>
+<button
+  onClick={handleExport}
+  style={{
+    marginBottom: 8,
+    backgroundColor: '#4A90E2',
+    color: 'white',
+    border: 'none',
+    padding: '10px 18px',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease-in-out',
+  }}
+  onMouseEnter={e => {
+    (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#0d6efd';
+    (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1.05)';
+    (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.2)';
+  }}
+  onMouseLeave={e => {
+    (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#1e90ff';
+    (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)';
+    (e.currentTarget as HTMLButtonElement).style.boxShadow = 'none';
+  }}
+>
+  Export
+</button>
+
+      {/* <h4>Annotations</h4> */}
       <ul>
         {annotations.map((ann, idx) => (
           <li

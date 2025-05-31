@@ -1,6 +1,6 @@
-# Video Annotation Tool
+# 🎬 Video Annotation Tool
 
-A professional web-based video annotation tool that allows users to watch videos and add timestamped annotations. This project is designed for efficient video review, labeling, and collaborative feedback.
+A **professional, modern web-based video annotation tool** for efficient video review, labeling, and collaborative feedback. Annotate videos with rectangles, circles, lines, and text, manage annotations with undo/redo, and export your work—all in a beautiful, responsive UI.
 
 ---
 
@@ -11,27 +11,31 @@ A professional web-based video annotation tool that allows users to watch videos
 
 ---
 
-## 📖 Project Overview
+## 📖 Overview
 
 The Video Annotation Tool enables users to:
-- Play and review videos in a modern, responsive interface.
-- Add, edit, and delete annotations (circle, rectangle, line, text) at specific timestamps.
-- View and manage all annotations in a list.
-- Edit annotation properties (color, text, etc.).
-- Undo/redo annotation actions.
-- Persist all annotation data in a MongoDB database.
+- **Play and review videos** in a modern, responsive interface.
+- **Add, move, and delete annotations** (rectangle, circle, line, text) at specific timestamps.
+- **Select and drag annotations** directly on the video frame.
+- **Edit annotation properties** (color, text, etc.) in a dedicated panel.
+- **Undo/redo** any annotation action.
+- **Export annotations** as JSON.
+- **Persistent storage** with a MongoDB backend.
 
 ---
 
 ## ✨ Features
 
-- **Video Playback:** Custom video player with timeline, playback speed, and frame navigation.
-- **Annotation Types:** Draw circles, rectangles, lines, and add text directly on the video.
-- **Annotation List:** View all annotations with timestamp, type, and quick delete.
+- **Custom Video Player:** Timeline, playback speed, and frame navigation.
+- **Annotation Types:** Rectangle, circle, line, and text—drawn directly on the video.
+- **Drag-to-Move:** Select and reposition annotations with intuitive mouse actions.
+- **Annotation List:** View, select, and delete annotations with timestamps and types.
 - **Properties Panel:** Edit color, text, and other properties for selected annotations.
-- **Undo/Redo:** Easily revert or reapply annotation changes.
-- **Responsive UI:** Works well on desktop and tablet screens.
-- **Persistent Storage:** All data is stored in MongoDB via a RESTful API.
+- **Undo/Redo:** Instantly revert or reapply annotation changes.
+- **Export:** Download all annotations as a JSON file.
+- **Responsive UI:** Optimized for desktop and tablet.
+- **Persistent Storage:** All data stored in MongoDB via RESTful API.
+- **Animated Timeline:** Professional, interactive seeker with annotation markers and tooltips.
 
 ---
 
@@ -47,7 +51,7 @@ The Video Annotation Tool enables users to:
 **Backend:**
 - [Node.js](https://nodejs.org/)
 - [Express](https://expressjs.com/)
-- [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) (cloud database)
+- [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
 - [Mongoose](https://mongoosejs.com/)
 
 **Deployment:**
@@ -158,6 +162,8 @@ https://video-annotation-tool.onrender.com/api/annotations
 - **Responsiveness:** Designed for desktop and tablet use.
 - **Undo/Redo:** Managed in Redux state for a smooth user experience.
 - **API Security:** No authentication or rate limiting; for demo/assessment use only.
+- **Annotation Movement:** Drag-to-move is implemented for all annotation types with accurate hit-testing.
+- **UI/UX:** Timeline and annotation markers are animated for a professional look.
 
 ---
 
@@ -191,4 +197,5 @@ https://video-annotation-tool.onrender.com/api/annotations
 For questions or feedback, please open an issue or contact [jagankrishna369@gmail.com](mailto:jagankrishna369@gmail.com).
 
 ---
-**Thank You and Enjoy annotating your videos!**
+
+**Thank you for using the Video Annotation Tool! Enjoy annotating your videos.**
