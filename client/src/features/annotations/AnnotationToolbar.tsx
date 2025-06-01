@@ -4,7 +4,7 @@ import { setSelectedTool } from './annotationsSlice';
 import type { RootState } from '../../store/store';
 import { FiMousePointer, FiCircle, FiSquare, FiType, FiMinus } from 'react-icons/fi';
 import type { ToolType } from './annotationsSlice';
-import { useAppDispatch } from '../../store/hooks'; // adjust the path as needed
+import { useAppDispatch } from '../../store/hooks';
 
 const tools: { type: ToolType; label: string; icon: React.ReactNode }[] = [
   { type: 'select', label: 'Select', icon: <FiMousePointer /> },
@@ -20,9 +20,7 @@ const AnnotationToolbar: React.FC = () => {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Don't interfere with typing in input/textarea fields
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-
       switch (e.key.toLowerCase()) {
         case 'c':
           dispatch(setSelectedTool('circle'));
@@ -47,16 +45,31 @@ const AnnotationToolbar: React.FC = () => {
   }, [dispatch]);
 
   return (
-    <div className="annotation-toolbar">
-      {tools.map(tool => (
+    <div className="annotation-toolbar" style={{ display: 'flex', gap: 8 }}>
+      {tools.map((tool) => (
         <button
           key={tool.type}
-          className={selectedTool === tool.type ? 'active' : ''}
+          className={selectedTool === tool.type ? 'active-tool-btn' : ''}
           onClick={() => dispatch(setSelectedTool(tool.type))}
           aria-label={tool.label}
+          title={tool.label}
+          style={{
+            background: selectedTool === tool.type ? '#0d6efd' : '#23272f',
+            color: selectedTool === tool.type ? '#fff' : '#e3e6ef',
+            border: 'none',
+            borderRadius: 6,
+            padding: '6px 10px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            fontWeight: 500,
+            fontSize: 15,
+            transition: 'background 0.18s, color 0.18s',
+          }}
         >
           {tool.icon}
-          <span className="tool-label">{tool.label}</span>
+          <span style={{ marginLeft: 4 }}>{tool.label}</span>
         </button>
       ))}
     </div>

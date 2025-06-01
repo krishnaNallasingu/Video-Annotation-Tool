@@ -5,6 +5,7 @@ import {
   addAnnotationAsync,
   setSelectedAnnotation,
   updateAnnotation,
+  setSelectedTool,
   updateAnnotationAsync,
 } from './annotationsSlice';
 import type { Annotation } from './annotationsSlice';
@@ -176,6 +177,7 @@ const AnnotationsCanvas: React.FC<Props> = ({ currentTime, playing }) => {
       setIsDrawing(false);
       setCurrentAnnotation(null);
       setStartPos(null);
+      dispatch(setSelectedTool('select'));
     }
     if (isDragging && selectedAnnotationId) {
       const ann = annotations.find(a => a.id === selectedAnnotationId);
