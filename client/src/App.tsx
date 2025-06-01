@@ -4,12 +4,10 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 
 const GITHUB_URL = "https://github.com/krishnaNallasingu/Video-Annotation-Tool";
 
-const About = React.lazy(() => import('./About')); // Lazy load About page
+const About = React.lazy(() => import('./About'));
 
 const App: React.FC<React.PropsWithChildren> = ({ children }) => {
-  const [darkMode, setDarkMode] = useState(() => {
-    return localStorage.getItem('theme') === 'dark';
-  });
+  const [darkMode, setDarkMode] = useState(true);
 
   useEffect(() => {
     if (darkMode) {
@@ -34,7 +32,7 @@ const App: React.FC<React.PropsWithChildren> = ({ children }) => {
         transition: 'background 0.3s, color 0.3s'
       }}>
         <header className="app-header" style={{
-          background: darkMode ? '#181c24' : '#181c24',
+          background: darkMode ? '#181c24' : '#353839',
           borderBottom: `2px solid #0d6efd`,
           boxShadow: '0 2px 8px #0004',
           padding: '0 0.5rem',

@@ -25,7 +25,7 @@ const AnnotationList: React.FC = () => {
         onClick={handleExport}
         style={{
           marginBottom: 8,
-          backgroundColor: '#181c22',
+          backgroundColor: '#0d6efd',
           color: 'white',
           border: 'none',
           padding: '10px 18px',
@@ -39,7 +39,7 @@ const AnnotationList: React.FC = () => {
           (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.2)';
         }}
         onMouseLeave={e => {
-          (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#181c22';
+          (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#0d6efd';
           (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)';
           (e.currentTarget as HTMLButtonElement).style.boxShadow = 'none';
         }}
