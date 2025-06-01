@@ -16,7 +16,7 @@ interface Props {
   playing: boolean;
 }
 
-const DEFAULT_COLOR = '#1e90ff';
+const DEFAULT_COLOR = '#FD510D';
 
 const AnnotationsCanvas: React.FC<Props> = ({ currentTime, playing }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -203,6 +203,7 @@ const AnnotationsCanvas: React.FC<Props> = ({ currentTime, playing }) => {
       ) {
         ctx.save();
         ctx.strokeStyle = ann.color;
+        ctx.lineWidth = 4;
         ctx.globalAlpha = 0.7;
         if (ann.type === 'rectangle') {
           ctx.strokeRect(ann.x, ann.y, ann.width || 0, ann.height || 0);
@@ -224,7 +225,7 @@ const AnnotationsCanvas: React.FC<Props> = ({ currentTime, playing }) => {
           ctx.lineTo(ann.x + (ann.width || 0), ann.y + (ann.height || 0));
           ctx.stroke();
         } else if (ann.type === 'text' && ann.text) {
-          ctx.font = '16px Arial';
+          ctx.font = '24px Arial';
           ctx.fillStyle = ann.color;
           ctx.globalAlpha = 1;
           ctx.fillText(ann.text, ann.x, ann.y);
@@ -233,9 +234,9 @@ const AnnotationsCanvas: React.FC<Props> = ({ currentTime, playing }) => {
         if (ann.id === selectedAnnotationId) {
           ctx.setLineDash([4, 2]);
           ctx.strokeStyle = '#ff0';
-          ctx.lineWidth = 2;
+          ctx.lineWidth = 4;
           if (ann.type === 'text' && ann.text) {
-            ctx.font = '16px Arial';
+            ctx.font = '24px Arial';
             const textWidth = ctx.measureText(ann.text).width;
             const textHeight = 20;
             ctx.strokeRect(ann.x - 4, ann.y - textHeight - 4, textWidth + 8, textHeight + 8);
@@ -251,6 +252,8 @@ const AnnotationsCanvas: React.FC<Props> = ({ currentTime, playing }) => {
     if (isDrawing && currentAnnotation) {
       ctx.save();
       ctx.strokeStyle = '#0d6efd';
+      ctx.lineWidth = 4;
+
       ctx.globalAlpha = 0.5;
       if (currentAnnotation.type === 'rectangle') {
         ctx.strokeRect(currentAnnotation.x, currentAnnotation.y, currentAnnotation.width || 0, currentAnnotation.height || 0);
