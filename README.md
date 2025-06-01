@@ -38,6 +38,12 @@ The Video Annotation Tool enables users to:
 - **Animated Timeline:** Professional, interactive seeker with annotation markers and tooltips.
 
 ---
+## 💡 Innovative Idea
+
+**Make a login page for users and store their annotations individually. Users can make friends on this platform and collaboratively annotate each other's videos and comment on them.**  
+This social annotation feature would enable team collaboration, peer review, and interactive feedback on video content.
+
+---
 
 ## 🛠️ Technology Stack
 
@@ -142,15 +148,23 @@ https://video-annotation-tool.onrender.com/api/annotations
 
 ![Home Page](resources/home.png)
 
-### Annotation List and Properties
-
-![Annotation List](resources/annotation_list.png)
-
 ### Adding and Editing Annotations
 
 ![Add/Edit Annotation](resources/annotations_edit.png)
 
-> _Screenshots are for demonstration. Please see the live demo for the latest UI._
+### About Page & Explanation
+
+![About Page](resources/about_page.png)
+
+### Annotation List and Properties
+
+![Example Edit](resources/example_edit.png)
+
+
+### Demo Video
+[Watch the Video Annotation Tool in action(Demo)](https://drive.google.com/file/d/1lso127f15RivPBd9aYoNY2mSQuXr4PKS/view)
+
+> _Screenshots are for demonstration. Please see the live demo for the latest UI Click on the URL at TOP._
 
 ---
 
