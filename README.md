@@ -11,6 +11,12 @@ A **professional, modern web-based video annotation tool** for efficient video r
 
 ---
 
+### Main Video Annotation Interface
+
+![Home Page](resources/intro.png)
+
+---
+
 ## 📖 Overview
 
 The Video Annotation Tool enables users to:
@@ -152,11 +158,11 @@ https://video-annotation-tool.onrender.com/api/annotations
 
 ![Add/Edit Annotation](resources/annotations_edit.png)
 
-### About Page & Explanation
+### About Page & Documantation
 
 ![About Page](resources/about_page.png)
 
-### Annotation List and Properties
+### Example Edit
 
 ![Example Edit](resources/example_edit.png)
 
