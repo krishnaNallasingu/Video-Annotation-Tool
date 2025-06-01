@@ -18,7 +18,7 @@ body {
 .app-header {
   background: #23272f;
   border-bottom: 2px solid #0d6efd;
-  box-shadow: 0 2px 8px rgba(13,110,253,0.08);
+  box-shadow: 0 2px 8px rgba(13, 110, 253, 0.08);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -66,7 +66,7 @@ body {
   font-size: 1rem;
   border-top: 2px solid #0d6efd;
   letter-spacing: 0.01em;
-  box-shadow: 0 -2px 8px rgba(13,110,253,0.08);
+  box-shadow: 0 -2px 8px rgba(13, 110, 253, 0.08);
 }
 
 /* Video player and panels */
@@ -77,7 +77,7 @@ body {
   border: 2px solid #232323;
   border-radius: 12px;
   background: #23272f;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
   transition: box-shadow 0.2s, border-color 0.2s;
 }
 
@@ -94,7 +94,7 @@ body {
 .properties-panel:hover,
 .annotation-list:hover,
 .annotation-toolbar:hover {
-  box-shadow: 0 6px 24px rgba(13,110,253,0.12);
+  box-shadow: 0 6px 24px rgba(13, 110, 253, 0.12);
   border-color: #0d6efd;
 }
 
@@ -153,7 +153,7 @@ input[type="range"] {
   height: 0;
 }
 
-/* Annotation toolbar */
+/* Annotation toolbar bar container */
 .annotation-toolbar-bar {
   display: flex;
   align-items: center;
@@ -168,55 +168,93 @@ input[type="range"] {
   box-sizing: border-box;
 }
 
+/* === YOUR PREFERRED TOOLBAR STYLES START HERE === */
 .annotation-toolbar {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 0;
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  margin: 0;
+  gap: 10px;
+  padding: 8px 12px;
+  background: #1c1f26;
+  border-radius: 10px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+  border: 2px solid transparent;
+  /* No border by default */
+  transition: border-color 0.2s;
 }
 
-.annotation-toolbar button {
-  background: #292d36;
-  border: 1.5px solid transparent;
-  padding: 4px 10px;
-  border-radius: 6px;
-  color: #fff;
-  font-size: 13px;
+.annotation-toolbar:hover,
+.annotation-toolbar:focus-within {
+  border-color: #f1fd0d;
+  /* Show border on hover/focus */
+}
+
+.tool-btn {
+  background: #23272f;
+  color: #e3e6ef;
+  border: 2px solid transparent;
+  /* Add border */
+  border-radius: 8px;
+  padding: 6px 10px;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 6px;
-  transition: background 0.18s, border-color 0.18s;
+  font-weight: 500;
+  font-size: 14px;
   position: relative;
+  transition: background 0.2s ease, transform 0.2s ease, border-color 0.2s;
 }
 
-.annotation-toolbar button.active,
-.annotation-toolbar button:hover {
+.tool-btn:hover {
+  background: #2c313c;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(13, 110, 253, 0.15);
+  border-color: #79fd0d;
+  /* Add border color on hover */
+}
+
+.tool-btn.active {
   background: #0d6efd;
-  border-color: #0d6efd;
-  color: #fff;
+  color: #ffffff;
+  box-shadow: 0 2px 10px rgba(13, 110, 253, 0.3);
+  border-color: #ffbf00;
+  /* Optional: highlight active with a gold border */
 }
 
-.annotation-toolbar .tool-label {
-  font-size: 13px;
+.tool-label {
+  margin-left: 2px;
+}
+
+.shortcut-hint {
+  font-size: 7px;
+  font-weight: 500;
+  color: #b0b3c4;
   margin-left: 4px;
-  display: none;
+  background: #353b48;
+  border-radius: 4px;
+  padding: 2px 4px;
 }
 
-@media (min-width: 600px) {
-  .annotation-toolbar .tool-label {
-    display: inline;
-  }
-}
+/* === END OF TOOLBAR STYLES === */
 
 /* Undo/Redo */
 .annotation-undo-redo {
   display: flex;
   gap: 8px;
+}
+
+.undo-redo-box {
+  border: 2px solid transparent;
+  border-radius: 8px;
+  padding: 9px 4px 9px;
+  background: #181c22;
+  display: flex;
+  gap: 10px;
+  transition: border-color 0.2s;
+}
+
+.undo-redo-box:hover,
+.undo-redo-box:focus-within {
+  border-color: #f1fd0d;
 }
 
 .annotation-undo-redo button {
@@ -348,18 +386,33 @@ input[type="range"] {
 
 /* Responsive */
 @media (max-width: 1100px) {
-  .video-player { max-width: 100%; }
-  .controls { flex-wrap: wrap; }
-  .annotation-list, .properties-panel { min-width: 140px; }
+  .video-player {
+    max-width: 100%;
+  }
+
+  .controls {
+    flex-wrap: wrap;
+  }
+
+  .annotation-list,
+  .properties-panel {
+    min-width: 140px;
+  }
 }
 
 @media (max-width: 700px) {
-  .video-player { margin: 0; border-radius: 0; }
-  .controls { padding: 8px 4px; font-size: 15px; }
-  .annotation-list, .properties-panel { padding: 6px; }
-}
+  .video-player {
+    margin: 0;
+    border-radius: 0;
+  }
 
-.active-tool-btn {
-  box-shadow: 0 2px 8px #0d6efd33;
-  outline: 2px solid #0d6efd;
+  .controls {
+    padding: 8px 4px;
+    font-size: 15px;
+  }
+
+  .annotation-list,
+  .properties-panel {
+    padding: 6px;
+  }
 }

@@ -5,14 +5,21 @@ import type { RootState } from '../../store/store';
 import { FiMousePointer, FiCircle, FiSquare, FiType, FiMinus } from 'react-icons/fi';
 import type { ToolType } from './annotationsSlice';
 import { useAppDispatch } from '../../store/hooks';
+import { motion } from 'framer-motion';
+// import '../../App.css';
 
-const tools: { type: ToolType; label: string; icon: React.ReactNode }[] = [
-  { type: 'select', label: 'Select', icon: <FiMousePointer /> },
-  { type: 'rectangle', label: 'Rectangle', icon: <FiSquare /> },
-  { type: 'circle', label: 'Circle', icon: <FiCircle /> },
-  { type: 'line', label: 'Line', icon: <FiMinus /> },
-  { type: 'text', label: 'Text', icon: <FiType /> },
-];
+const tools: {
+  type: ToolType;
+  label: string;
+  icon: React.ReactNode;
+  shortcut: string;
+}[] = [
+    { type: 'select', label: 'Select', icon: <FiMousePointer />, shortcut: 'S' },
+    { type: 'rectangle', label: 'Rectangle', icon: <FiSquare />, shortcut: 'R' },
+    { type: 'circle', label: 'Circle', icon: <FiCircle />, shortcut: 'C' },
+    { type: 'line', label: 'Line', icon: <FiMinus />, shortcut: 'L' },
+    { type: 'text', label: 'Text', icon: <FiType />, shortcut: 'T' },
+  ];
 
 const AnnotationToolbar: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -21,58 +28,35 @@ const AnnotationToolbar: React.FC = () => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-      switch (e.key.toLowerCase()) {
-        case 'c':
-          dispatch(setSelectedTool('circle'));
-          break;
-        case 'r':
-          dispatch(setSelectedTool('rectangle'));
-          break;
-        case 'l':
-          dispatch(setSelectedTool('line'));
-          break;
-        case 't':
-          dispatch(setSelectedTool('text'));
-          break;
-        case 'v':
-          dispatch(setSelectedTool('select'));
-          break;
-      }
+      const key = e.key.toLowerCase();
+      const tool = tools.find(t => t.shortcut.toLowerCase() === key);
+      if (tool) dispatch(setSelectedTool(tool.type));
     };
-
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [dispatch]);
 
   return (
-    <div className="annotation-toolbar" style={{ display: 'flex', gap: 8 }}>
+    <motion.div
+      className="annotation-toolbar"
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+    >
       {tools.map((tool) => (
         <button
           key={tool.type}
-          className={selectedTool === tool.type ? 'active-tool-btn' : ''}
+          className={`tool-btn ${selectedTool === tool.type ? 'active' : ''}`}
           onClick={() => dispatch(setSelectedTool(tool.type))}
           aria-label={tool.label}
-          title={tool.label}
-          style={{
-            background: selectedTool === tool.type ? '#0d6efd' : '#23272f',
-            color: selectedTool === tool.type ? '#fff' : '#e3e6ef',
-            border: 'none',
-            borderRadius: 6,
-            padding: '6px 10px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-            fontWeight: 500,
-            fontSize: 15,
-            transition: 'background 0.18s, color 0.18s',
-          }}
+          title={`${tool.label} (${tool.shortcut})`}
         >
           {tool.icon}
-          <span style={{ marginLeft: 4 }}>{tool.label}</span>
+          <span className="tool-label">{tool.label}</span>
+          <span className="shortcut-hint">{tool.shortcut}</span>
         </button>
       ))}
-    </div>
+    </motion.div>
   );
 };
 

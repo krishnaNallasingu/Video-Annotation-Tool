@@ -114,7 +114,7 @@ const App: React.FC<React.PropsWithChildren> = ({ children }) => {
           textAlign: 'center',
           padding: '1rem 0',
           fontSize: '1rem',
-          borderTop: '1px solid #232323',
+          borderTop: '1px solid rgb(95, 142, 224)',
           marginTop: 'auto'
         }}>
           &copy; {new Date().getFullYear()} {' '}
@@ -129,7 +129,7 @@ const App: React.FC<React.PropsWithChildren> = ({ children }) => {
               color: #0d6efd;
               font-weight: 600;
               font-size: 1.08rem;
-              padding: 6px 16px;
+              padding: 8px 16px;
               border-radius: 8px;
               cursor: pointer;
               transition: background 0.18s, color 0.18s, box-shadow 0.18s, transform 0.18s;
@@ -175,10 +175,10 @@ const App: React.FC<React.PropsWithChildren> = ({ children }) => {
               transform: scale(1.15);
             }
             .properties-panel {
-              max-width: 400px;
+              max-width: 800px;
               width: 100%;
               box-sizing: border-box;
-              padding: 0 8px;
+              padding: 10px 50px 10px;
             }
             .properties-panel label {
               display: block;
@@ -192,7 +192,7 @@ const App: React.FC<React.PropsWithChildren> = ({ children }) => {
               margin-bottom: 12px;
               border-radius: 6px;
               border: 1px solid #ccc;
-              font-size: 1rem;
+              font-size: 0.9rem;
               box-sizing: border-box;
             }
             @media (max-width: 700px) {

@@ -105,11 +105,9 @@ const AnnotationsCanvas: React.FC<Props> = ({ currentTime, playing }) => {
               y2 * x1
             ) /
             Math.sqrt(Math.pow(y2 - y1, 2) + Math.pow(x2 - x1, 2));
-          // Allow 6px tolerance
           return dist < 6;
         }
         if (ann.type === 'text') {
-          // Use canvas to measure text width
           const canvas = canvasRef.current;
           if (!canvas) return false;
           const ctx = canvas.getContext('2d');
@@ -117,7 +115,7 @@ const AnnotationsCanvas: React.FC<Props> = ({ currentTime, playing }) => {
           ctx.font = '16px Arial';
           const text = ann.text || '';
           const width = ctx.measureText(text).width;
-          const height = 20; // Approximate text height
+          const height = 20;
           return (
             px >= ann.x &&
             py >= ann.y - height &&
@@ -190,7 +188,7 @@ const AnnotationsCanvas: React.FC<Props> = ({ currentTime, playing }) => {
   };
 
   // Performance: requestAnimationFrame drawing loop
-const animationFrameRef = useRef<number | null>(null);
+  const animationFrameRef = useRef<number | null>(null);
   const drawCanvas = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -286,8 +284,8 @@ const animationFrameRef = useRef<number | null>(null);
     loop();
     return () => {
       if (animationFrameRef.current !== null) {
-  cancelAnimationFrame(animationFrameRef.current);
-}
+        cancelAnimationFrame(animationFrameRef.current);
+      }
     };
     // Only re-run if these change
     // eslint-disable-next-line

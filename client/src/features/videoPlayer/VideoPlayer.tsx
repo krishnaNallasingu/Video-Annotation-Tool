@@ -34,8 +34,8 @@ const VideoPlayer: React.FC = () => {
     flexDirection: 'row' as const,
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
-    gap: 50,
-    maxWidth: 1400,
+    gap: 100,
+    maxWidth: 1300,
     margin: '0 auto',
     padding: '2rem 0'
   };
@@ -141,6 +141,8 @@ const VideoPlayer: React.FC = () => {
         frameByFrame(1);
       } else if (e.code === 'Comma') {
         frameByFrame(-1);
+      } else if (e.key.toLowerCase() === 'f') {
+        handleFullscreen();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -224,12 +226,12 @@ const VideoPlayer: React.FC = () => {
             <AnnotationsCanvas currentTime={currentTime} playing={playing} />
           </div>
           {/* Seeker timeline */}
-          <div style={{ background: '#181818', padding: '0 20px', position: 'relative' }}>
+          <div style={{ background: '#181818', padding: '0 0', position: 'relative' }}>
             <input
               type="range"
               min={0}
               max={duration}
-              step={0.01}
+              step={0.05}
               value={currentTime}
               onChange={handleSeek}
               className="custom-seeker"
@@ -242,10 +244,10 @@ const VideoPlayer: React.FC = () => {
                 top: 0,
                 height: 8,
                 width: `${(currentTime / duration) * 100}%`,
-                background: 'linear-gradient(90deg, #0d6efd 60%, #23272f 100%)',
+                background: 'linear-gradient(90deg, #0d6efd 60%,rgb(253, 77, 13) 100%)',
                 borderRadius: 4,
                 pointerEvents: 'none',
-                transition: 'width 0.18s'
+                transition: 'width 0.1s'
               }}
             />
             {/* Progress bar markers */}
@@ -272,12 +274,7 @@ const VideoPlayer: React.FC = () => {
             <button className="player-btn" onClick={handlePlayPause} aria-label="Play/Pause">
               {playing ? <FiPause size={22} /> : <FiPlay size={22} />}
             </button>
-            <button className="player-btn" onClick={() => frameByFrame(-1)} title="Previous frame" aria-label="Previous frame">
-              <FiChevronLeft size={20} />
-            </button>
-            <button className="player-btn" onClick={() => frameByFrame(1)} title="Next frame" aria-label="Next frame">
-              <FiChevronRight size={20} />
-            </button>
+
             <span style={{ minWidth: 70, textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>
               {formatTime(currentTime)} / {formatTime(duration)}
             </span>
@@ -295,6 +292,12 @@ const VideoPlayer: React.FC = () => {
                 </button>
               ))}
             </div>
+            <button className="player-btn" onClick={() => frameByFrame(-1)} title="Previous frame" aria-label="Previous frame">
+              <FiChevronLeft size={20} />
+            </button>
+            <button className="player-btn" onClick={() => frameByFrame(1)} title="Next frame" aria-label="Next frame">
+              <FiChevronRight size={20} />
+            </button>
             <button className="player-btn" onClick={handleFullscreen} aria-label="Fullscreen">
               <FiMaximize size={20} />
             </button>
@@ -309,7 +312,7 @@ const VideoPlayer: React.FC = () => {
               background: '#23272f',
               borderRadius: '0 0 12px 12px',
               borderTop: '1px solid #232323',
-              padding: '5px 115px 0px',
+              padding: '9px 20px 0px',
               marginBottom: 0,
               width: '100%',
               boxSizing: 'border-box',
@@ -318,12 +321,23 @@ const VideoPlayer: React.FC = () => {
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <AnnotationToolbar />
-              <button className="player-btn" onClick={() => dispatch(undo())} aria-label="Undo">
-                <FiRotateCcw size={18} />
-              </button>
-              <button className="player-btn" onClick={() => dispatch(redo())} aria-label="Redo">
-                <FiRotateCw size={18} />
-              </button>
+              <div
+                style={{
+                  display: 'flex',
+                  gap: 10,
+                  borderRadius: 8,
+                  padding: '9px 4px 9px',
+                  background: '#181c22'
+                }}
+                className="undo-redo-box"
+              >
+                <button className="player-btn" onClick={() => dispatch(undo())} aria-label="Undo">
+                  <FiRotateCcw size={18} />
+                </button>
+                <button className="player-btn" onClick={() => dispatch(redo())} aria-label="Redo">
+                  <FiRotateCw size={18} />
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -569,40 +583,40 @@ const VideoPlayer: React.FC = () => {
         /* Progress marker styles */
         .progress-markers .marker {
           position: absolute;
-          top: -8px;
-          width: 8px;
-          height: 16px;
-          background: #0d6efd;
+          top: -1px;
+          width: 4px;
+          height: 10px;
+          background:rgba(211, 243, 6, 0.84);
           opacity: 0.7;
-          border-radius: 3px;
-          transition: transform 0.18s, box-shadow 0.18s, background 0.18s;
+          border-radius: 2px;
+          transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
           cursor: pointer;
           z-index: 2;
         }
         .progress-markers .marker:hover {
           transform: scale(1.4);
-          background: #ffb300;
+          background:rgb(179, 255, 0);
           box-shadow: 0 2px 12px #ffb30055;
           opacity: 1;
         }
         .progress-markers .marker-tooltip {
           position: absolute;
           left: 50%;
-          top: -32px;
+          top: -24px;
           transform: translateX(-50%);
           background: #23272f;
           color: #fff;
-          padding: 4px 10px;
-          border-radius: 6px;
-          font-size: 0.95em;
+          padding: 4px 8px;
+          border-radius: 5px;
+          font-size: 0.64em;
           white-space: nowrap;
           pointer-events: none;
           opacity: 0;
-          transition: opacity 0.18s;
+          transition: opacity 0.15s;
           z-index: 10;
         }
         .progress-markers .marker:hover .marker-tooltip {
-          opacity: 1;
+          opacity: 0.7;
         }
       `}
       </style>
